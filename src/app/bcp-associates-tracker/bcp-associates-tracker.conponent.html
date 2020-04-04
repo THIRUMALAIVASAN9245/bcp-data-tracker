@@ -101,10 +101,10 @@
                         <td>
                             <div class="btn-group" role="group" aria-label="Basic example">
                                 <button type="button" class="ml-1" style="font-size: 12px;"
-                                    [ngClass]="{'btn badge btn-success' : getAssociateTrackerById(product.AssociateId), 'btn badge' : true}"
+                                    [ngClass]="{'btn badge btn-success' : !getAssociateTrackerById(product.AssociateId), 'btn badge' : true}"
                                     (click)="addDetailClick(product,'Yes' )">Yes</button>
                                 <button type="button" class="ml-1" style="font-size: 12px;"
-                                    [ngClass]="{'btn badge btn-danger' : !getAssociateTrackerById(product.AssociateId), 'btn badge' :true }"
+                                    [ngClass]="{'btn badge btn-danger' : getAssociateTrackerById(product.AssociateId), 'btn badge' :true }"
                                     (click)="addDetailClick(product, 'No')">No</button>
                             </div>
                         </td>

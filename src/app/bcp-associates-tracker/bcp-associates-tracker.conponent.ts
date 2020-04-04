@@ -51,7 +51,7 @@ export class BcpAssociateTrackerComponent {
     this.isLoading = true;
     this.bcpAttendenceTrackerService.getAttendenceTracker(this.projectId).subscribe(model => {
       this.isLoading = false;
-      this.attendenceData = model;
+      this.attendenceData = model && model.results;
     });
   }
 
@@ -154,17 +154,17 @@ export class BcpAssociateTrackerComponent {
         && x.UpdateDate == moment().format("DD-MM-YYYY") && x.Attendance == "No");
       return isExisting.length > 0;
     }
-    return true;
+    return false;
   }
 
   addDetailClick(userData, attendence) {
     this.isLoading = true;
-    let isExisting = this.attendenceData.filter(x => x.AssociateID == userData.AssociateId
+    let isExisting = this.attendenceData && this.attendenceData.filter(x => x.AssociateID == userData.AssociateId
       && x.UpdateDate == moment().format("DD-MM-YYYY"));
 
     if (isExisting.length > 0) {
       let id = isExisting[0].Id;
-      this.bcpAttendenceTrackerService.updateAttendenceTracker(attendence, id, this.formDigestDetail.FormDigestValue)
+      this.bcpAttendenceTrackerService.deleteAttendenceTracker(id, this.formDigestDetail.FormDigestValue)
         .subscribe(() => {
           this.isLoading = false;
           this.toasterService.pop("success", "Attendance Details", "Attendance Details Updated Successfully");

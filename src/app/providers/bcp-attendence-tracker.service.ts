@@ -37,7 +37,7 @@ export class BcpAttendenceTrackerService {
             "__metadata": { "type": itemType },
             "Title": projectId,
             "AssociateID": associateId,
-            "Attendance": "Yes",
+            "Attendance": "No",
             "UpdateDate": moment().format("DD-MM-YYYY")
         };
 
@@ -59,6 +59,26 @@ export class BcpAttendenceTrackerService {
             }));
     }
 
+    deleteAttendenceTracker(listUpdateId, formDigestValue) {
+        let listName = "BCPDailyUpdate";
+        let httpHeaders = new HttpHeaders({
+            'Content-Type': 'application/json;charset=UTF-8;odata=verbose',
+            'Cache-Control': 'no-cache',
+            'accept': 'application/json;odata=verbose',
+            "X-HTTP-Method": "DELETE",
+            "If-Match": "*",
+            "X-RequestDigest": formDigestValue
+        });
+        let options = {
+            headers: httpHeaders,
+        };
+
+        var siteUrl = this.baseUrl + "_api/lists/getbytitle('" + listName + "')/items(" + listUpdateId + ")";
+        return this.httpClientService.delete<any>(siteUrl, options)
+            .pipe(map((resspone: any) => {
+                return resspone;
+            }));
+    }
 
     updateAttendenceTracker(attendence, listUpdateId, formDigestValue) {
         let listName = "BCPDailyUpdate";
