@@ -1,0 +1,243 @@
+<app-loader *ngIf="isLoading">{{ isLoading }}</app-loader>
+<div class="content" role="main">
+    <h2>MIS Dashboard- UK & I-INS</h2>
+</div>
+
+<div class="containerTB">
+    <div class="row">
+        <div class="col">
+            <span class="float-left badge badge-outline-dark pt-2 pl-0">
+                Account ID
+            </span>
+            <span *ngIf="projectDetails" class="float-center badge badge-outline-dark text-muted">
+                {{ projectDetails.AccountID }}
+            </span>
+        </div>
+        <div class="col-md-auto">
+            <span class="float-left badge badge-outline-dark pt-2 pl-0">
+                Account Name
+            </span>
+            <span *ngIf="projectDetails" class="float-center badge badge-outline-dark text-muted">
+                {{ projectDetails.AccountName }}
+            </span>
+        </div>
+        <div class="col col-lg-4 badge badge-outline-dark mr-3 mb-2" style="text-align: right;">
+            <a rel="noopener" [routerLink]="['/home']">
+                <span style="padding-left: 15px; cursor: pointer !important;font-size: 17px;color: #c62b5d;">
+                    << Back </span></a>
+        </div>
+    </div>
+</div>
+
+<div class="containerTB">
+    <div class="row">
+        <div class="col-lg-4 badge badge-outline-dark pl-3" style="text-align: left;">
+            <div class="form-group mb-1 mt-3">
+                <label for="exampleInput">Filter by AssociateId/AssociateName</label>
+                <input type="text" [(ngModel)]="searchText" class="form-control" id="exampleInput"
+                    aria-describedby="emailHelp" placeholder="Enter AssociateId or AssociateName">
+            </div>
+        </div>
+        <div class="col-lg-2 badge badge-outline-dark pl-3" style="text-align: left;">
+            <div class="form-group mb-1 mt-3">
+                <label for="departmentInput">Filter by Department</label>
+                <input type="text" [(ngModel)]="searchTextByDepartment" class="form-control" id="departmentInput"
+                    aria-describedby="emailHelp" placeholder="Enter Department">
+            </div>
+        </div>
+        <div class="col-lg-2 badge badge-outline-dark pl-3" style="text-align: left;">
+            <div class="form-group mb-1 mt-3">
+                <label for="locationInput">Filter by Location</label>
+                <select id="locationInput" class="form-control" (change)="onDropDownChange($event.target.value)">
+                    <option value="All" (click)="onDropDownChange('')">All</option>
+                    <option *ngFor="let location of workLocation" [value]="location">{{location}}</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-1 badge badge-outline-dark pl-3" style="text-align: left;">
+            <div class="form-group mb-1 mt-5">
+                <a rel="noopener" (click)="downloadData()">
+                    <span style="padding-left: 15px; cursor: pointer !important;font-size: 15px;">
+                        Download </span></a>
+            </div>
+        </div>
+        <div class="col-lg-3 badge badge-outline-dark pl-3" style="text-align: left;">
+            <div class="form-group mb-1 mt-5">
+                <a rel="noopener" (click)="navigateToReport()">
+                    <span style="padding-left: 15px; cursor: pointer !important;font-size: 15px;">
+                        View MIS Report </span></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="containerTB">
+    <div id="table-scroll1" class="table-scroll1">
+        <div id="table-scroll1" class="table-wrap" class="tableFixHead table-responsive cnstr-record product-tbl">
+            <table class="table table-bordered heading-hvr main-table1 table-font">
+                <thead>
+                    <tr>
+                        <th class="fixed-side" scope="col cnstr-txt-center">ID</th>
+                        <th class="fixed-side" scope="col cnstr-txt-center">Name</th>
+                        <th scope="col cnstr-txt-center">Department</th>
+                        <th scope="col cnstr-txt-center" style="padding-left: 15px;">Attend.</th>
+                        <th scope="col cnstr-txt-center">WFH Ready?</th>
+                        <th scope="col cnstr-txt-center">Device Type</th>
+                        <th scope="col cnstr-txt-center">Personal Reason</th>
+                        <th scope="col cnstr-txt-center">Asset Id</th>
+                        <th scope="col cnstr-txt-center">PII Access</th>
+                        <th scope="col cnstr-txt-center">Protocol</th>
+                        <th scope="col cnstr-txt-center">BYOD comp.</th>
+                        <th scope="col cnstr-txt-center">Dongles</th>
+                        <th scope="col cnstr-txt-center"></th>
+                    </tr>
+                </thead>
+                <tbody *ngIf="associateTrackerDetail">
+                    <tr
+                        *ngFor="let product of associateTrackerDetail| grdFilter: {AssociateId: searchText, AssociateName:searchText} | grdFilter: {FinalMISDepartment:searchTextByDepartment} | grdFilter: {Location:searchTextByLocation}; let i = index">
+                        <td class="fixed-side" align="center">{{product.AssociateId}}</td>
+                        <td class="fixed-side">{{product.AssociateName}}</td>
+                        <td>{{product.FinalMISDepartment}}</td>
+                        <td>
+                            <div class="btn-group" role="group" aria-label="Basic example">
+                                <button type="button" class="ml-1" style="font-size: 12px;"
+                                    [ngClass]="{'btn badge btn-success' : getAssociateTrackerById(product.AssociateId), 'btn badge' : true}"
+                                    (click)="addDetailClick(product,'Yes' )">Yes</button>
+                                <button type="button" class="ml-1" style="font-size: 12px;"
+                                    [ngClass]="{'btn badge btn-danger' : !getAssociateTrackerById(product.AssociateId), 'btn badge' :true }"
+                                    (click)="addDetailClick(product, 'No')">No</button>
+                            </div>
+                        </td>
+                        <td>
+                            <select name="CurrentEnabledforWFH" class="form-control"
+                                (change)="onChange($event.target.value, product.AssociateId, $event.target.name, i)"
+                                id="CurrentEnabledforWFH_{{i}}" placeholder="select">
+                                <option></option>
+                                <option [selected]="getCurrentEnabledforWFHYes(product.AssociateId)" value="Yes">Yes
+                                </option>
+                                <option [selected]="getCurrentEnabledforWFHNo(product.AssociateId)" value="No">No
+                                </option>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="WFHDeviceType" class="form-control" style="align-self: center;"
+                                [disabled]="getCurrentEnabledforWFHDisabledNo(product.AssociateId)"
+                                (change)="onChange($event.target.value, product.AssociateId, $event.target.name, i)"
+                                id="WFHDeviceType_{{i}}" placeholder="select">
+                                <option></option>
+                                <option [selected]="getWFHDeviceTypePd(product.AssociateId)" value="Personal Device">
+                                    Personal Device</option>
+                                <option [selected]="getWFHDeviceTypeCod(product.AssociateId)" value="Cognizant Device">
+                                    Cognizant Device</option>
+                                <option [selected]="getWFHDeviceTypeCud(product.AssociateId)" value="Customer Device">
+                                    Customer Device</option>
+                                <option [selected]="getWFHDeviceTypeCognizantBYOD(product.AssociateId)"
+                                    value="Cognizant BYOD">
+                                    Cognizant BYOD</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="PersonalReason" class="form-control"
+                                [disabled]="getCurrentEnabledforWFHDisabledYes(product.AssociateId)"
+                                (change)="onChange($event.target.value, product.AssociateId, $event.target.name, i)"
+                                id="PersonalReason_{{i}}" placeholder="select">
+                                <option></option>
+                                <option [selected]="getPersonalReasonNd(product.AssociateId)" value="No device"> No
+                                    device
+                                </option>
+                                <option [selected]="getPersonalReasonUpl(product.AssociateId)" value="unplanned leave">
+                                    unplanned leave
+                                </option>
+                                <option [selected]="getPersonalReasonpl(product.AssociateId)" value="planned leave">
+                                    planned leave
+                                </option>
+                                <option [selected]="getPersonalReasonWio(product.AssociateId)"
+                                    value="working at office">
+                                    working at office
+                                </option>
+
+                                <option [selected]="getPersonalReasonConnectivity(product.AssociateId)"
+                                    value="Connectivity">
+                                    Connectivity
+                                </option>
+                                <option [selected]="getPersonalReasonCOVID19(product.AssociateId)" value="COVID19">
+                                    COVID19
+                                </option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" name="AssetId" class="form-control"
+                                [disabled]="getWFHDeviceTypeDisabled(product.AssociateId)"
+                                (change)="onChange($event.target.value, product.AssociateId, $event.target.name, i)"
+                                value="{{getAssetId(product.AssociateId)}}" id="AssetId_{{i}}">
+                        </td>
+                        <td>
+                            <select name="PIIDataAccess" class="form-control"
+                                (change)="onChange($event.target.value, product.AssociateId, $event.target.name, i)"
+                                id="PIIDataAccess_{{i}}" placeholder="select">
+                                <option></option>
+                                <option [selected]="getPIIDataAccessYes(product.AssociateId)" value="Yes">
+                                    Yes</option>
+                                <option [selected]="getPIIDataAccessNo(product.AssociateId)" value="No">No
+                                </option>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="Protocol" class="form-control"
+                                (change)="onChange($event.target.value, product.AssociateId, $event.target.name, i)"
+                                id="Protocol_{{i}}" placeholder="select">
+                                <option></option>
+                                <option [selected]="getProtocolA(product.AssociateId)" value="Protocol A">Protocol A
+                                </option>
+                                <option [selected]="getProtocolB1(product.AssociateId)" value="Protocol B.1">Protocol
+                                    B.1</option>
+                                <option [selected]="getProtocolB2(product.AssociateId)" value="Protocol B.2">Protocol
+                                    B.2</option>
+                                <option [selected]="getProtocolB3(product.AssociateId)" value="Protocol B.3">Protocol
+                                    B.3</option>
+                                <option [selected]="getProtocolB4(product.AssociateId)" value="Protocol B.4">Protocol
+                                    B.4</option>
+                                <option [selected]="getProtocolC1(product.AssociateId)" value="Protocol C.1">Protocol
+                                    C.1</option>
+                                <option [selected]="getProtocolC2(product.AssociateId)" value="Protocol C.2">Protocol
+                                    C.2</option>
+                                <option [selected]="getProtocolC3(product.AssociateId)" value="Protocol C.3">Protocol
+                                    C.3</option>
+                                <option [selected]="getProtocolC4(product.AssociateId)" value="Protocol C.4">Protocol
+                                    C.4</option>
+                                <option [selected]="getProtocolD(product.AssociateId)" value="Protocol D">Protocol D
+                                </option>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="BYODCompliance" class="form-control"
+                                (change)="onChange($event.target.value, product.AssociateId, $event.target.name, i)"
+                                id="BYODCompliance_{{i}}" placeholder="select">
+                                <option></option>
+                                <option [selected]="getBYODComplianceYes(product.AssociateId)" value="Yes">
+                                    Yes</option>
+                                <option [selected]="getBYODComplianceNo(product.AssociateId)" value="No">No
+                                </option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" name="Dongles" class="form-control"
+                                (change)="onChange($event.target.value, product.AssociateId, $event.target.name, i)"
+                                value="{{getDongles(product.AssociateId)}}" id="Dongles_{{i}}">
+                        </td>
+                        <td align="center">
+                            <button id="submitData_{{i}}" (click)="submitData(product.AssociateId,i)"
+                                style="padding: 0;border: 0;margin: 0;cursor: pointer;">
+                                <img src="https://previews.123rf.com/images/faysalfarhan/faysalfarhan1707/faysalfarhan170700275/81798828-save-floppy-disk-icon-isolated-on-glassy-blue-round-button-abstract-illustration.jpg"
+                                    alt="Submit" style="width: 30px;">
+                            </button>
+                            <!-- <img (click)="submitData(product.AssociateId)"
+                                src="https://previews.123rf.com/images/faysalfarhan/faysalfarhan1707/faysalfarhan170700275/81798828-save-floppy-disk-icon-isolated-on-glassy-blue-round-button-abstract-illustration.jpg"
+                                alt="Submit" style="width: 30px;"> -->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

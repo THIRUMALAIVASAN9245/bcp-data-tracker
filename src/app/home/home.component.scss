@@ -1,0 +1,18 @@
+.wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 25;
+    cursor: pointer !important;
+}
+
+.block-a {
+    width: 80%;
+}
+
+.block-b {
+    justify-content: center;
+    float: right;
+    width: 20%;
+    height: 100%;
+}

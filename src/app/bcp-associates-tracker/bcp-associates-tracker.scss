@@ -1,0 +1,79 @@
+.my-custom-scrollbar {
+    position: relative !important;
+    height: 450px !important;
+    overflow-y: scroll !important;
+    }
+
+    .table-scroll {
+        position:relative;
+        margin:auto;
+        overflow:hidden;
+        border:1px solid #dee2e6;
+    }
+    .table-wrap {
+        width:100%;
+        overflow:auto;
+    }
+    .table-scroll table {
+        width:100%;
+        margin:auto;
+    }
+    .table-scroll th, .table-scroll td {
+        padding:5px 10px;
+        border:1px solid #dee2e6;
+        white-space:nowrap;
+        vertical-align:top;
+    }
+    .table-scroll thead, .table-scroll tfoot {
+        background:#f9f9f9;
+        padding-bottom: 0px;
+    }
+    .clone {
+        position:absolute;
+        top:0;
+        left:0;
+        pointer-events:none;
+    }
+    .clone th, .clone td  {
+        visibility:hidden
+    }
+    .clone td, .clone th {
+        border-color:transparent
+    }
+    .clone tbody th {
+        visibility:visible;
+    }
+    .clone .fixed-side {
+        border:1px solid #dee2e6;
+        background:#eee;
+        visibility:visible;
+    }
+
+    .clone thead, .clone tfoot{background:transparent;}
+
+
+// .tableFixHead          { overflow-y: auto; height: 300px; }
+// .tableFixHead thead th { position: sticky; top: 0; }
+
+table  { border-collapse: collapse; width: 100%; }
+th, td { padding: 8px 16px; }
+th     { background:#343676; color: white; }
+
+.containerTB {
+    width: 100%;
+    padding-right: 3%;
+    padding-left: 3%;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.table-font {
+    padding: 0.25em 0.4em;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}

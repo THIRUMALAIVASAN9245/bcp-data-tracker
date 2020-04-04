@@ -1,0 +1,352 @@
+/* You can add global styles to this file, and also import other style files */
+@import "~angular2-toaster/toaster.css";
+
+.fa {
+  color: #623073 !important;
+  font-size: 15px !important;
+  margin-left: 10px !important;
+  margin-right: 10px !important;
+  cursor: pointer !important;
+}
+.toast-top-right {
+  top: 15% !important;
+}
+.toast-success {
+  background-color: #51a351 !important;
+}  
+.toast-error {
+  background-color: #bd362f !important;
+}  
+.toast-info {
+  background-color: #2f96b4 !important;
+}  
+.toast-wait {
+  background-color: #2f96b4 !important;
+}  
+.toast-warning {
+  background-color: #f89406 !important;
+}  
+#toast-container > div {
+  opacity: 0.9 !important;
+  box-shadow: 0 0 12px #6d3583 !important;
+}
+
+.cnstr-record th{white-space:nowrap;padding:.45rem .2rem; font-size:13px; border-bottom-width:0px!important;}  
+.cnstr-record thead{background:#f0f3f5;}  
+  
+.cnstr-record .form-control{font-size:13px; padding:0px 0rem 0px 0.2rem; height:calc(2rem + 2px);}  
+.cnstr-record select.form-control{padding-left:.05rem;}  
+.cnstr-record .table td, .cnstr-record .table th {vertical-align:middle;}  
+.cnstr-record .table td{padding:.3rem;}  
+.cnstr-record .table td h4{margin:0px;}  
+  
+.wp-50{width:50px;}  
+.wp-60{width:60px;}  
+.wp-70{width:70px;}  
+.wp-80{width:80px;}  
+.wp-90{width:90px;}  
+.wp-100{width:100px;}  
+.mw-auto{min-width:inherit;}  
+.expand-row{width:100%; border:solid 1px #596269; display:inline-block; border-radius:3px; width:16px; height:16px; vertical-align:top; background:#596269; color:#ffffff!important;}  
+.expand-row img{vertical-align:top; position:relative; top:2px;}  
+.sub-table th{font-weight:400; font-size:12px;}  
+.sub-table td{background:#efefef;}  
+.no-bg td{background:inherit;}  
+.mw-100{max-width:100%;}  
+.cnstr-txt-center {text-align: center;}
+
+:host {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !important;
+  font-size: 14px !important;
+  color: #333 !important;
+  box-sizing: border-box !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 8px 0 !important;
+}
+
+p {
+  margin: 0 !important;
+}
+
+.spacer {
+  flex: 1 !important;
+}
+
+.toolbar {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 60px !important;
+  display: flex !important;
+  align-items: center !important;
+  background-color: #343676 !important;
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+.toolbar img {
+  margin: 0 16px !important;
+}
+
+.toolbar #twitter-logo {
+  height: 40px !important;
+  margin: 0 16px !important;
+}
+
+.toolbar #twitter-logo:hover {
+  opacity: 0.8 !important;
+}
+
+.content {
+  display: flex !important;
+  margin: 82px auto 32px !important;
+  padding: 0 16px !important;
+  max-width: 1100px !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+svg.material-icons {
+  height: 24px !important;
+  width: auto !important;
+}
+
+svg.material-icons:not(:last-child) {
+  margin-right: 8px !important;
+}
+
+.card svg.material-icons path {
+  fill: #888 !important;
+}
+
+.card-container {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  margin-top: 16px !important;
+  width: 1150px !important;
+}
+
+.card {
+  border-radius: 4px !important;
+  border: 1px solid #eee !important;
+  background-color: #343676 !important;
+  height: 70px !important;
+  width: 330px !important;
+  margin: 0 16px 16px !important;
+  display: flex !important;
+  flex-direction: row !important;
+  transition: all 0.2s ease-in-out !important;
+  line-height: 24px !important;
+}
+
+.card-container .card:not(:last-child) {
+  margin-right: 0 !important;
+}
+
+.card.card-small {
+  height: 16px !important;
+  width: 168px !important;
+}
+
+.card-container .card:not(.highlight-card) {
+  cursor: pointer !important;
+  color: white !important;
+}
+
+.card-container .card:not(.highlight-card):hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 4px 17px rgba(black, 0.35) !important;
+}
+
+.card-container .card:not(.highlight-card):hover .material-icons path {
+  fill: rgb(105, 103, 103) !important;
+}
+
+.card.highlight-card {
+  background-color: #451c56 !important;
+  color: white !important;
+  font-weight: 600 !important;
+  border: none !important;
+  width: auto !important;
+  min-width: 30% !important;
+  position: relative !important;
+}
+
+.card.card.highlight-card span {
+  margin-left: 60px !important;
+}
+
+svg#rocket {
+  width: 80px !important;
+  position: absolute !important;
+  left: -10px !important;
+  top: -24px !important;
+}
+
+svg#rocket-smoke {
+  height: calc(100vh - 95px) !important;
+  position: absolute !important;
+  top: 10px !important;
+  right: 180px !important;
+  z-index: -10 !important;
+}
+
+a,
+a:visited,
+a:hover {
+  color: #451c56 !important;
+  text-decoration: none !important;
+}
+
+a:hover {
+  color: #125699 !important;
+}
+
+.terminal {
+  position: relative !important;
+  width: 80% !important;
+  max-width: 600px !important;
+  border-radius: 6px !important;
+  padding-top: 45px !important;
+  margin-top: 8px !important;
+  overflow: hidden !important;
+  background-color: rgb(15, 15, 16) !important;
+}
+
+.terminal::before {
+  content: "\2022 \2022 \2022" !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  height: 4px !important;
+  background: rgb(58, 58, 58) !important;
+  color: #c2c3c4 !important;
+  width: 100% !important;
+  font-size: 2rem !important;
+  line-height: 0 !important;
+  padding: 14px 0 !important;
+  text-indent: 4px !important;
+}
+
+.terminal pre {
+  font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace !important;
+  color: white !important;
+  padding: 0 1rem 1rem !important;
+  margin: 0 !important;
+}
+
+.circle-link {
+  height: 40px !important;
+  width: 40px !important;
+  border-radius: 40px !important;
+  margin: 8px !important;
+  background-color: white !important;
+  border: 1px solid #eeeeee !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  cursor: pointer !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24) !important;
+  transition: 1s ease-out !important;
+}
+
+.circle-link:hover {
+  transform: translateY(-0.25rem) !important;
+  box-shadow: 0px 3px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+footer {
+  margin-top: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  line-height: 20px !important;
+}
+
+footer a {
+  display: flex !important;
+  align-items: center !important;
+}
+
+.github-star-badge {
+  color: #24292e !important;
+  display: flex !important;
+  align-items: center !important;
+  font-size: 12px !important;
+  padding: 3px 10px !important;
+  border: 1px solid rgba(27,31,35,.2) !important;
+  border-radius: 3px !important;
+  background-image: linear-gradient(-180deg,#fafbfc,#eff3f6 90%) !important;
+  margin-left: 4px !important;
+  font-weight: 600 !important;
+  font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol !important;
+}
+
+.github-star-badge:hover {
+  background-image: linear-gradient(-180deg,#f0f3f6,#e6ebf1 90%) !important;
+  border-color: rgba(27,31,35,.35) !important;
+  background-position: -.5em !important;
+}
+
+.github-star-badge .material-icons {
+  height: 16px !important;
+  width: 16px !important;
+  margin-right: 4px !important;
+}
+
+svg#clouds {
+  position: fixed !important;
+  bottom: -160px !important;
+  left: -230px !important;
+  z-index: -10 !important;
+  width: 1920px !important;
+}
+.text-center {
+  align-items: center !important;
+  align-content: center !important;
+  display: flex !important;
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 767px) {
+
+  .card-container > *:not(.circle-link) ,
+  .terminal {
+    width: 100% !important;
+  }
+
+  .card:not(.highlight-card) {
+    height: 60px !important;
+    margin: 8px 0 !important;
+  }
+
+  h2, .h2 {
+    font-size: 1.4rem !important;
+  }
+
+  .card.highlight-card span {
+    margin-left: 72px !important;
+  }
+
+  svg#rocket-smoke {
+    right: 120px !important;
+    transform: rotate(-5deg) !important;
+  }
+}
+
+@media screen and (max-width: 575px) {
+  svg#rocket-smoke {
+    display: none !important;
+    visibility: hidden !important;
+  }
+}
