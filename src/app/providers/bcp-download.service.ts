@@ -15,7 +15,7 @@ export class BcpDownloadService {
 
     masterDataCount = 0;
     dailyUpdateCount = 0;
-    recordsToReturn = 500
+    recordsToReturn = 0
     constructor(private httpClientService: HttpClient) {
     }
 
@@ -137,7 +137,7 @@ export class BcpDownloadService {
         var masterURLs = [];
         var dataTrackerURLs = [];
         var dailyUpdateURLs = [];
-        this.masterDataCount = 1001;
+        this.masterDataCount = masterDataCount;
         this.dailyUpdateCount = dailyUpdateCount;
         // masterURLs.push(this.getDataFromUrl(this.generateURL(apiURLMaster) + 0 + "&$top=" + this.recordsToReturn));
         // dataTrackerURLs.push(this.getDataFromUrl(this.generateURL(apiURLDataTracker) + 0 + "&$top=" + this.recordsToReturn));
