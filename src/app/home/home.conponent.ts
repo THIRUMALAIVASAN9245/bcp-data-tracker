@@ -18,6 +18,7 @@ export class HomeComponent {
   searchText: string = '';
   associateDetails: AssociateDetails[] = [];
   bCPDailyUpdate: BCPDailyUpdate[] = [];
+  bCPMasterDataCount: number = 0;
   bCPDailyUpdateCount: number = 0;
 
   constructor(
@@ -33,7 +34,19 @@ export class HomeComponent {
         this.accountMasterData = res;
       }
     });
+
+    this.getDataCound();
   }
+
+  private getDataCound() {
+    this.bcpDownloadService.getMasterDetailsCount().subscribe(masterDetailCount => {
+      this.bCPMasterDataCount = masterDetailCount;
+      this.bcpDownloadService.getDailyUpdateCount().subscribe(dailyUpdateCount => {
+        this.bCPDailyUpdateCount = dailyUpdateCount;
+      })
+    });
+  }
+
 
   navigateAccountDetails(accountId) {
     this.router.navigate(['/bcm-user-tracker', accountId]);
@@ -42,7 +55,7 @@ export class HomeComponent {
   downloadData() {
     this.associateDetails = [];
     this.bCPDailyUpdate = [];
-    this.bcpDownloadService.exportAllAccountDetails(this.bCPDailyUpdateCount, 0).subscribe(model => {
+    this.bcpDownloadService.exportAllAccountDetails(this.bCPMasterDataCount, this.bCPDailyUpdateCount).subscribe(model => {
       this.mergeData(model);
       const sheetOneResponse = this.associateDetails.length > 0 ? this.associateDetails : [new AssociateDetails("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")];
       const sheetTwoResponse = this.bCPDailyUpdate.length > 0 ? this.bCPDailyUpdate : [new BCPDailyUpdate("", "", "", "")];
@@ -71,7 +84,6 @@ export class HomeComponent {
 
   mergeData(model: any) {
     for (var index = 0; index < model[0].length; index++) {
-      debugger;
       var details = model[0][index];
 
       var activityDetails = this.getAssciateActivity(model[1], details.AssociateId);
@@ -111,7 +123,7 @@ export class HomeComponent {
         latestRecord ? latestRecord.Protocol : "",
         latestRecord ? latestRecord.BYODCompliance : "",
         latestRecord ? latestRecord.Dongles : "");
-        
+
       this.associateDetails.push(data);
 
       const getAddten = model[2].filter(atten => atten.AssociateID == model[0][index].AssociateId);

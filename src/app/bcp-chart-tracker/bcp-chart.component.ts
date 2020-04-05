@@ -42,7 +42,6 @@ export class BcpChartComponent implements OnInit {
         this.bcpChartService.getAccountAttendanceData(projectId).subscribe((response: BCPDailyUpdate[]) => {
             const uniqueUpdateDate = [...new Set(response.map(item => item.UpdateDate))];
             uniqueUpdateDate.forEach((updateDate: any) => {
-                debugger;
                 const uniqueYes = response.filter(item => item.UpdateDate == updateDate && item.Attendance == "No");
                 const uniqueYesCount = this.accountCount - uniqueYes.length;
                 const percent = (uniqueYesCount / this.accountCount) * 100;

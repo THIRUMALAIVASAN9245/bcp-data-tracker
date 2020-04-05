@@ -21,7 +21,6 @@ export class BcpAttendenceTrackerService {
     }
 
     getAttendenceTracker(accountId: string): any {
-        debugger;
         const today = moment().format("DD-MM-YYYY");
         var apiURL = this.baseUrl + "_vti_bin/listdata.svc/BCPDailyUpdate?$filter=((substringof(%27" + today + "%27,UpdateDate)%20eq%20true)%20and%20startswith(Title,%27" + accountId + "%27))&$top=5000";
 

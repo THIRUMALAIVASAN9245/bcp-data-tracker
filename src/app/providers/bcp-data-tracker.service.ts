@@ -20,7 +20,6 @@ export class BcpDataTrackerService {
         let getCourses = this.httpClientService.get(apiURL);
 
         return forkJoin([getCourses]).pipe(map((resspone: any) => {
-            debugger;
             const courseDetails = resspone[0].d.results.map(item => {
                 return new BCPDetailsUpdate(
                     item.AccountID,

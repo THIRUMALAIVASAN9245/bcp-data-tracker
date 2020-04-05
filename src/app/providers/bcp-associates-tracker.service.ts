@@ -47,7 +47,8 @@ export class BcpAssociateTrackerService {
                     item.CorporateStatusDesktop,
                     item.Temporary,
                     item.AlwaysNew2,
-                    item.DuplicateFlag
+                    item.DuplicateFlag,
+                    item.isDeleted == "N" ? false : true
                 );
             });
 
@@ -64,7 +65,6 @@ export class BcpAssociateTrackerService {
         let getCoursesCountLast = this.httpClientService.get(apiURLLast);
 
         return forkJoin([getCourses, getCoursesCountLast]).pipe(map((resspone: any) => {
-            debugger;
             const courseDetails = resspone[0].d.map(item => {
                 return new BCPDetailsUpdate(
                     item.AccountID,

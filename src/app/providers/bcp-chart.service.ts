@@ -16,7 +16,6 @@ export class BcpChartService {
         let getCourses = this.httpClientService.get(apiURL);
 
         return forkJoin([getCourses]).pipe(map((resspone: any) => {
-            debugger;
             const courseDetails = resspone[0].value.map(item => {
                 return new BCPDetailsUpdate(
                     item.Title,

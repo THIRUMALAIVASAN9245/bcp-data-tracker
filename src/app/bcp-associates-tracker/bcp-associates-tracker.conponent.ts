@@ -33,6 +33,7 @@ export class BcpAssociateTrackerComponent {
   associateDetails: AssociateDetails[] = [];
   bCPDailyUpdate: BCPDailyUpdate[] = [];
   baseUrl = environment.apiBaseUrl;
+  bCPDailyUpdateCount: number = 0;
 
   constructor(private bcpAssociateTrackerService: BcpAssociateTrackerService,
     private bcpDataTrackerService: BcpDataTrackerService,
@@ -50,6 +51,13 @@ export class BcpAssociateTrackerComponent {
     this.getAttendenceTrackerDetails();
     this.getDataTrackerDetails();
     this.getAssociateTrackerDetails();
+    this.getDataCound();
+  }
+
+  private getDataCound() {
+    this.bcpDownloadService.getDailyUpdateCount().subscribe(dailyUpdateCount => {
+      this.bCPDailyUpdateCount = dailyUpdateCount;
+    });
   }
 
   private getAttendenceTrackerDetails() {
@@ -194,14 +202,14 @@ export class BcpAssociateTrackerComponent {
   }
 
   downloadData() {
-    // this.bcpFileExportService.exportAsExcelFile(null, this.projectId);
-
     var filterData = {
       projectId: this.projectId,
       associateNameOrId: this.searchText,
       department: this.searchTextByDepartment,
-      location: this.searchTextByLocation
-    }
+      location: this.searchTextByLocation,
+      dailyUpdateCount: this.bCPDailyUpdateCount
+    };
+
     this.associateDetails = [];
     this.bCPDailyUpdate = [];
     this.bcpDownloadService.exportAccountDetails(filterData).subscribe(model => {
@@ -213,9 +221,6 @@ export class BcpAssociateTrackerComponent {
       data.push(sheetTwoResponse);
       this.bcpFileExportService.exportAsExcelFile(data, this.projectId);
     });
-
-
-    
   }
 
   onChange(value, associateId, columnName, controlIdex) {
