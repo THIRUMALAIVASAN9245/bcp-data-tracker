@@ -112,8 +112,6 @@ export class HomeComponent {
         latestRecord ? latestRecord.BYODCompliance : "",
         latestRecord ? latestRecord.Dongles : "");
         
-        data["sdfsdf"] = "sdfsdf";
-
       this.associateDetails.push(data);
 
       const getAddten = model[2].filter(atten => atten.AssociateID == model[0][index].AssociateId);
