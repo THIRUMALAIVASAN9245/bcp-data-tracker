@@ -76,8 +76,10 @@ export class HomeComponent {
           dataTwo = sheetTwoResponse.filter(x => x.AccountId == this.accountMasterData[index].AccountId);
         }
       }
-      var data = [dataOne, dataTwo];
+      var updatedDailyTracker = this.bcpDownloadService.generateDailyUpdate(dataOne, dataTwo);
 
+      var data = [dataOne];
+      data.push(updatedDailyTracker);
       this.bcpFileExportService.exportAsExcelFile(data, "AllAccount");
     });
   }

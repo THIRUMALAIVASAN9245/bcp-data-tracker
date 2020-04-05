@@ -217,8 +217,10 @@ export class BcpAssociateTrackerComponent {
       var data = [];
       const sheetOneResponse = this.associateDetails.length > 0 ? this.associateDetails : [new AssociateDetails("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")];
       const sheetTwoResponse = this.bCPDailyUpdate.length > 0 ? this.bCPDailyUpdate : [new BCPDailyUpdate("", "", "", "")];
+      var updatedDailyTracker = this.bcpDownloadService.generateDailyUpdate(sheetOneResponse, sheetTwoResponse);
+
       data.push(sheetOneResponse);
-      data.push(sheetTwoResponse);
+      data.push(updatedDailyTracker);
       this.bcpFileExportService.exportAsExcelFile(data, this.projectId);
     });
   }

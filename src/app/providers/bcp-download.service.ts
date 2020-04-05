@@ -224,7 +224,7 @@ export class BcpDownloadService {
         }));
     }
 
-    generateDailyUpdate(fullAttendance: any) {
+    generateDailyUpdate(associateDetails: any, fullAttendance: any) {
         var dailyAttendanceDetails = [];
         var initialDate = new Date(2020, 2, 30);
         var curerntDate = new Date();
@@ -233,18 +233,32 @@ export class BcpDownloadService {
 
             }
             else {
-                var copyInitialDate = initialDate;
-                for (var index = 0; index < fullAttendance.length; index++) {
-                    var attendanceDate = this.stringToDate(fullAttendance[index].UpdateDate)
-                    if (initialDate.getTime() == attendanceDate.getTime() && fullAttendance.Attendance == "No") {
+                var noAttendance = this.groupBy(fullAttendance, "UpdateDate");
+                var initialDateString = moment(initialDate).format("DD-MM-YYYY");
+                if (noAttendance[initialDateString] == undefined) {
+                    associateDetails.forEach(element => {
+                        var attendanceForAll = new BCPDailyUpdate(
+                            element.AccountID,
+                            element.AssociateID,
+                            "YES",
+                            initialDateString,
+                        );
+                        dailyAttendanceDetails.push(attendanceForAll);
+                    });
+                }
+                else {
+                    var absenties = noAttendance[initialDateString].map(a => a.AssociateID);
 
-                    }
-                    else {
-                        var attendanceToday = this.attendanceDetailsSheet(fullAttendance);
-                        attendanceToday.UpdateDate = initialDate.toISOString().substring(0, 10);
-                        attendanceToday.Attendance = "Yes"
-                        dailyAttendanceDetails.push(this.attendanceDetailsSheet(fullAttendance));
-                    }
+                    var filteredData = associateDetails.filter(atten => !absenties.includes(atten.AssociateID));
+                    filteredData.forEach(element => {
+                        var attendanceForAll = new BCPDailyUpdate(
+                            element.AccountID,
+                            element.AssociateID,
+                            "Yes",
+                            initialDateString
+                        );
+                        dailyAttendanceDetails.push(attendanceForAll);
+                    });
                 }
             }
 
@@ -288,6 +302,7 @@ export class BcpDownloadService {
             latestRecord ? latestRecord.BYODCompliance : "",
             latestRecord ? latestRecord.Dongles : "");
     }
+
     attendanceDetailsSheet(getAddten: any) {
         return new BCPDailyUpdate(
             getAddten.Title,
@@ -296,6 +311,7 @@ export class BcpDownloadService {
             getAddten.UpdateDate
         );
     }
+
     getAssciateActivity(model: any, associateId: any) {
         var filterDetails = [];
         for (var index = 0; index < model.length; index++) {
@@ -310,7 +326,8 @@ export class BcpDownloadService {
     getLatestRecord(dataCollection: any) {
         var latestDate = new Date(Math.max.apply(null, dataCollection.map(
             function (e) {
-                return this.stringToDate(e.UpdateDate);
+                var parts = e.UpdateDate.split('-');
+                return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
             }
         )));
 
@@ -321,8 +338,16 @@ export class BcpDownloadService {
             }
         }
     }
+
     stringToDate(dateString: string) {
         var dateParts = dateString.split('-');
         return new Date(parseInt(dateParts[2]), parseInt(dateParts[1]) - 1, parseInt(dateParts[0]));
+    }
+
+    groupBy(xs: any, key: any) {
+        return xs.reduce(function (rv, x) {
+            (rv[x[key]] = rv[x[key]] || []).push(x);
+            return rv;
+        }, []);
     }
 }
