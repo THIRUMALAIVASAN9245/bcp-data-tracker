@@ -22,9 +22,9 @@
             </span>
         </div>
         <div class="col col-lg-4 badge badge-outline-dark mr-3 mb-2" style="text-align: right;">
-            <a rel="noopener" [routerLink]="['/home']">
-                <span style="padding-left: 15px; cursor: pointer !important;font-size: 17px;color: #c62b5d;">
-                    << Back </span></a>
+            <button [routerLink]="['/home']" style="padding: 0; border: 0; margin: 0; cursor: pointer;"><img
+                    src="https://orleans.lib.in.us/wp-content/uploads/2014/12/backButton.jpg" alt="back"
+                    style="width: 65px;height: 45px;"></button>
         </div>
     </div>
 </div>
@@ -101,10 +101,10 @@
                         <td>
                             <div class="btn-group" role="group" aria-label="Basic example">
                                 <button type="button" class="ml-1" style="font-size: 12px;"
-                                    [ngClass]="{'btn badge btn-success' : getAssociateTrackerById(product.AssociateId), 'btn badge' : true}"
+                                    [ngClass]="{'btn badge btn-success' : !getAssociateTrackerById(product.AssociateId), 'btn badge' : true}"
                                     (click)="addDetailClick(product,'Yes' )">Yes</button>
                                 <button type="button" class="ml-1" style="font-size: 12px;"
-                                    [ngClass]="{'btn badge btn-danger' : !getAssociateTrackerById(product.AssociateId), 'btn badge' :true }"
+                                    [ngClass]="{'btn badge btn-danger' : getAssociateTrackerById(product.AssociateId), 'btn badge' :true }"
                                     (click)="addDetailClick(product, 'No')">No</button>
                             </div>
                         </td>

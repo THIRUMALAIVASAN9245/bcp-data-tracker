@@ -20,10 +20,14 @@ export class BcpChartComponent implements OnInit {
     availableDate: any = [];
     attendanceData: any = [];
     deviceType: any = [];
+    accountCount: any;
 
     ngOnInit() {
         this.route.params.subscribe(params => { this.projectId = params["id"] });
-        this.getBcpDetailsUpdateData(this.projectId);
+        this.bcpChartService.getBCPDataTrackerHistoryCount(this.projectId).subscribe(data => {
+            this.accountCount = data;
+            this.getBcpDetailsUpdateData(this.projectId);
+        });
     }
 
     NavigateToUserTracker() {
@@ -32,16 +36,16 @@ export class BcpChartComponent implements OnInit {
 
     getBcpDetailsUpdateData(projectId) {
         this.chartData = [];
-        this.bcpChartService.getUpdate(projectId).subscribe(data => {
+        this.bcpChartService.getBCPDataTrackerHistory(projectId).subscribe(data => {
             this.getChartData(data.bcpDetailsUpdate);
         });
         this.bcpChartService.getAccountAttendanceData(projectId).subscribe((response: BCPDailyUpdate[]) => {
             const uniqueUpdateDate = [...new Set(response.map(item => item.UpdateDate))];
             uniqueUpdateDate.forEach((updateDate: any) => {
                 debugger;
-                var totalCount = response.filter(item => item.UpdateDate == updateDate);
-                var uniqueYes = response.filter(item => item.UpdateDate == updateDate && item.Attendance == "Yes");
-                const percent = (uniqueYes.length * 100) / totalCount.length;
+                const uniqueYes = response.filter(item => item.UpdateDate == updateDate && item.Attendance == "No");
+                const uniqueYesCount = this.accountCount - uniqueYes.length;
+                const percent = (uniqueYesCount / this.accountCount) * 100;
                 const roundPer = parseFloat(percent.toString()).toFixed(2);
                 this.attendanceData.push({ date: updateDate, count: +roundPer });
             });
@@ -191,6 +195,9 @@ export class BcpChartComponent implements OnInit {
                     text: ' Count '
                 }
             },
+            credits: {
+                enabled: false
+            },
             plotOptions: {
                 line: {
                     dataLabels: {
@@ -245,6 +252,8 @@ export class BcpChartComponent implements OnInit {
                 title: {
                     text: ' Count '
                 }
+            }, credits: {
+                enabled: false
             },
             plotOptions: {
                 line: {
@@ -308,6 +317,8 @@ export class BcpChartComponent implements OnInit {
                 title: {
                     text: ' Count '
                 }
+            }, credits: {
+                enabled: false
             },
             plotOptions: {
                 line: {
@@ -367,6 +378,8 @@ export class BcpChartComponent implements OnInit {
                 title: {
                     text: ' Percentage '
                 }
+            }, credits: {
+                enabled: false
             },
             plotOptions: {
                 line: {
@@ -444,6 +457,8 @@ export class BcpChartComponent implements OnInit {
                 title: {
                     text: ' Count '
                 }
+            }, credits: {
+                enabled: false
             },
             plotOptions: {
                 line: {

@@ -111,6 +111,8 @@ export class HomeComponent {
         latestRecord ? latestRecord.Protocol : "",
         latestRecord ? latestRecord.BYODCompliance : "",
         latestRecord ? latestRecord.Dongles : "");
+        
+        data["sdfsdf"] = "sdfsdf";
 
       this.associateDetails.push(data);
 
