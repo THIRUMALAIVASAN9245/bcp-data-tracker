@@ -7,6 +7,7 @@ import * as moment from 'moment'
 import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { UserDetail } from '../models/user-details';
+import { AssociateDetails } from '../models/AssociateDetails';
 
 @Injectable()
 export class BcpDownloadService {
@@ -47,8 +48,6 @@ export class BcpDownloadService {
         this.dailyUpdateCount = filters.dailyUpdateCount;
 
         var apiURLMaster = this.getMasterURL(filters);
-        // var apiURLUpdate = this.baseUrl + "_api/lists/getbytitle('BCPDataTracker')/items?$filter=UpdateDate eq '" + today + "'&Title eq " + filters.projectId + " &contains(AssociateID, '" + filters.associateNameOrId + "')&$top=1000";
-        // var apiURLDaily = this.baseUrl + "_api/lists/getbytitle('BCPDailyUpdate')/items?$filter=Title eq " + filters.projectId + "&$top=4000";
         var apiURLDataTracker = this.baseUrl + "_api/lists/getbytitle('BCPDataTracker')/items?$filter=Title eq %27" + filters.projectId + "%27&$top=" + this.recordsToReturn;
         var apiURLDaily = this.baseUrl + "_api/lists/getbytitle('BCPDailyUpdate')/items?$filter=Title eq %27" + filters.projectId + "%27"; // + "%27 &$top=" + this.recordsToReturn;
 
@@ -62,70 +61,6 @@ export class BcpDownloadService {
         serviceCalls = serviceCalls.concat(dailyUpdateURLs);
 
         return forkJoin(serviceCalls);
-
-        // return forkJoin([getMaster, getUpdate, getDaily]).pipe(map((resspone: any) => {
-        //     const exportData = [] as any;
-        //     const getMasterDetails = resspone[0].value.map(item => {
-        //         return new UserDetail(
-        //             item.Title,
-        //             item.AccountID,
-        //             item.AccountName,
-        //             item.AssociateID,
-        //             item.AssociateName,
-        //             item.ParentCustomerName,
-        //             item.Status,
-        //             item.AssociateResponsetoPersonalDeviceAvailabilitySurvey,
-        //             item.FinalMISDepartment,
-        //             item.Location,
-        //             item.AddressforShipping,
-        //             item.Contact,
-        //             item.LaptopRequested,
-        //             item.CorporateStatusLaptop,
-        //             item.DesktopRequested,
-        //             item.CorporateStatusDesktop,
-        //             item.RecordType,
-        //             item.Sort,
-        //             item.Temporary,
-        //             item.AlwaysNew2,
-        //             item.DuplicateFlag,
-        //             item.isDeleted == "N" ? false : true
-        //         );
-        //     });
-
-        //     const getUpdate = resspone[1].d.results.map(item => {
-        //         return new BCPDetailsUpdate(
-        //             item.AccountID,
-        //             item.AssociateID,
-        //             item.CurrentEnabledforWFH,
-        //             item.WFHDeviceType,
-        //             item.Comments,
-        //             item.IstheResourceProductivefromHome,
-        //             item.PersonalReason,
-        //             item.AssetId,
-        //             item.PIIDataAccess,
-        //             item.Protocol,
-        //             item.BYODCompliance,
-        //             item.Dongle,
-        //             item.UpdateDate,
-        //             ""
-        //         );
-        //     });
-
-        //     const getDaily = resspone[2].d.results.map(item => {
-        //         return new BCPDailyUpdate(
-        //             item.Title,
-        //             item.AssociateID,
-        //             item.Attendance,
-        //             item.UpdateDate
-        //         );
-        //     });
-
-        //     exportData.push(getMasterDetails);
-        //     exportData.push(getUpdate);
-        //     exportData.push(getDaily);
-
-        //     return exportData;
-        // }));
     }
 
     getMasterURL(filters: any) {
@@ -287,5 +222,107 @@ export class BcpDownloadService {
                 return response.value;
             }
         }));
+    }
+
+    generateDailyUpdate(fullAttendance: any) {
+        var dailyAttendanceDetails = [];
+        var initialDate = new Date(2020, 2, 30);
+        var curerntDate = new Date();
+        while (curerntDate.getTime() > initialDate.getTime()) {
+            if (initialDate.getDay() == 6 || initialDate.getDay() == 0) {
+
+            }
+            else {
+                var copyInitialDate = initialDate;
+                for (var index = 0; index < fullAttendance.length; index++) {
+                    var attendanceDate = this.stringToDate(fullAttendance[index].UpdateDate)
+                    if (initialDate.getTime() == attendanceDate.getTime() && fullAttendance.Attendance == "No") {
+
+                    }
+                    else {
+                        var attendanceToday = this.attendanceDetailsSheet(fullAttendance);
+                        attendanceToday.UpdateDate = initialDate.toISOString().substring(0, 10);
+                        attendanceToday.Attendance = "Yes"
+                        dailyAttendanceDetails.push(this.attendanceDetailsSheet(fullAttendance));
+                    }
+                }
+            }
+
+            initialDate.setDate(initialDate.getDate() + 1);
+        }
+
+        return dailyAttendanceDetails;
+    }
+
+    associateDetailsSheet(details: any, latestRecord: any) {
+        return new AssociateDetails(
+            details.Title,
+            details.AssociateID,
+            details.AssociateName,
+            details.AccountID,
+            details.AccountName,
+            details.ParentCustomerName,
+            details.Status,
+            details.AssociateResponsetoPersonalDeviceAvailabilitySurvey,
+            details.FinalMISDepartment,
+            details.Location,
+            latestRecord ? latestRecord.CurrentEnabledforWFH : "",
+            latestRecord ? latestRecord.WFHDeviceType : "",
+            latestRecord ? latestRecord.Comments : "",
+            latestRecord ? latestRecord.IstheResourceProductivefromHome : "",
+            details.AddressforShipping,
+            details.Contact,
+            details.LaptopRequested,
+            details.CorporateStatusLaptop,
+            details.DesktopRequested,
+            details.CorporateStatusDesktop,
+            details.RecordType,
+            details.Sort,
+            details.Temporary,
+            details.AlwaysNew2,
+            details.DuplicateFlag,
+            latestRecord ? latestRecord.PersonalReason : "",
+            latestRecord ? latestRecord.AssetId : "",
+            latestRecord ? latestRecord.PIIDataAccess : "",
+            latestRecord ? latestRecord.Protocol : "",
+            latestRecord ? latestRecord.BYODCompliance : "",
+            latestRecord ? latestRecord.Dongles : "");
+    }
+    attendanceDetailsSheet(getAddten: any) {
+        return new BCPDailyUpdate(
+            getAddten.Title,
+            getAddten.AssociateID,
+            getAddten.Attendance,
+            getAddten.UpdateDate
+        );
+    }
+    getAssciateActivity(model: any, associateId: any) {
+        var filterDetails = [];
+        for (var index = 0; index < model.length; index++) {
+            if (associateId == model[index].AssociateID) {
+                filterDetails.push(model[index]);
+            }
+        }
+
+        return filterDetails;
+    }
+
+    getLatestRecord(dataCollection: any) {
+        var latestDate = new Date(Math.max.apply(null, dataCollection.map(
+            function (e) {
+                return this.stringToDate(e.UpdateDate);
+            }
+        )));
+
+        for (var index = 0; index < dataCollection.length; index++) {
+            var date = this.stringToDate(dataCollection[index].UpdateDate);
+            if (latestDate.getTime() == date.getTime()) {
+                return dataCollection[index];
+            }
+        }
+    }
+    stringToDate(dateString: string) {
+        var dateParts = dateString.split('-');
+        return new Date(parseInt(dateParts[2]), parseInt(dateParts[1]) - 1, parseInt(dateParts[0]));
     }
 }

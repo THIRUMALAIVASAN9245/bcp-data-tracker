@@ -541,96 +541,28 @@ export class BcpAssociateTrackerComponent {
     });
   }
 
-
-
-
-
-
   mergeData(model: any) {
-    for (var index = 0; index < model[0].length; index++) {
-      var details = model[0][index];
+    var masterDetails = model[0].value;
 
-      var activityDetails = this.getAssciateActivity(model[1], details.AssociateId);
+    for (var index = 0; index < masterDetails.length; index++) {
+      var details = masterDetails[index];
+
+      var activityDetails = this.bcpDownloadService.getAssciateActivity(model[1].value, details.AssociateID);
       var latestRecord;
       if (activityDetails != undefined && activityDetails.length > 0) {
-        latestRecord = this.getLatestRecord(activityDetails);
+        latestRecord = this.bcpDownloadService.getLatestRecord(activityDetails);
       }
-      var data = new AssociateDetails(
-        model[0][index].MarketUnit,
-        model[0][index].AssociateId,
-        model[0][index].AssociateName,
-        model[0][index].AccountID,
-        model[0][index].AccountName,
-        model[0][index].ParentCustomerName,
-        model[0][index].Status,
-        model[0][index].AssociateResponsetoPersonalDeviceAvailabilitySurvey,
-        model[0][index].FinalMISDepartment,
-        model[0][index].Location,
-        latestRecord ? latestRecord.CurrentEnabledforWFH : "",
-        latestRecord ? latestRecord.WFHDeviceType : "",
-        latestRecord ? latestRecord.Comments : "",
-        latestRecord ? latestRecord.IstheResourceProductivefromHome : "",
-        model[0][index].AddressforShipping,
-        model[0][index].Contact,
-        model[0][index].LaptopRequested,
-        model[0][index].CorporateStatusLaptop,
-        model[0][index].DesktopRequested,
-        model[0][index].CorporateStatusDesktop,
-        model[0][index].RecordType,
-        model[0][index].Sort,
-        model[0][index].Temporary,
-        model[0][index].AlwaysNew2,
-        model[0][index].DuplicateFlag,
-        latestRecord ? latestRecord.PersonalReason : "",
-        latestRecord ? latestRecord.AssetId : "",
-        latestRecord ? latestRecord.PIIDataAccess : "",
-        latestRecord ? latestRecord.Protocol : "",
-        latestRecord ? latestRecord.BYODCompliance : "",
-        latestRecord ? latestRecord.Dongles : "");
 
+      var data = this.bcpDownloadService.associateDetailsSheet(details, latestRecord);
       this.associateDetails.push(data);
 
-      const getAddten = model[2].filter(atten => atten.AssociateID == model[0][index].AssociateId);
+      const getAddten = model[2].value.filter(atten => atten.AssociateID == masterDetails[index].AssociateID);
       if (getAddten && getAddten.length > 0) {
-        if (this.bCPDailyUpdate.length > 0) {
-          this.bCPDailyUpdate = this.bCPDailyUpdate.concat(getAddten);
-        }
-        else {
-          this.bCPDailyUpdate = getAddten;
-        }
+          getAddten.forEach(element => {
+            var data = this.bcpDownloadService.attendanceDetailsSheet(element);
+            this.bCPDailyUpdate.push(data);
+          });
       }
     }
   }
-
-  getAssciateActivity(model: any, associateId: any) {
-    var filterDetails = [];
-    for (var index = 0; index < model.length; index++) {
-      if (associateId == model[index].AssociateID) {
-        filterDetails.push(model[index]);
-      }
-    }
-
-    return filterDetails;
-  }
-
-  getLatestRecord(dataCollection: any) {
-    var latestDate = new Date(Math.max.apply(null, dataCollection.map(
-      function (e) {
-        var parts = e.UpdateDate.split('-');
-        return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
-      }
-    )));
-
-    for (var index = 0; index < dataCollection.length; index++) {
-      var parts = dataCollection[index].UpdateDate.split('-');
-      var date = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
-      if (latestDate.getTime() == date.getTime()) {
-        return dataCollection[index];
-      }
-    }
-  }
-
-
-
-
 }
