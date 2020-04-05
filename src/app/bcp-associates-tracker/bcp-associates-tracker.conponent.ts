@@ -9,6 +9,9 @@ import { environment } from 'src/environments/environment.prod';
 import { BcpAssociateTrackerService } from '../providers/bcp-associates-tracker.service';
 import { BcpDataTrackerService } from '../providers/bcp-data-tracker.service';
 import { BcpAttendenceTrackerService } from '../providers/bcp-Attendence-tracker.service';
+import { BcpDownloadService } from '../providers/bcp-download.service';
+import { AssociateDetails } from '../models/AssociateDetails';
+import { BCPDailyUpdate } from '../models/BCPDailyUpdate';
 
 @Component({
   selector: 'bcp-associates-tracker',
@@ -27,7 +30,8 @@ export class BcpAssociateTrackerComponent {
   searchText: string = '';
   searchTextByDepartment: string = '';
   searchTextByLocation: string = '';
-
+  associateDetails: AssociateDetails[] = [];
+  bCPDailyUpdate: BCPDailyUpdate[] = [];
   baseUrl = environment.apiBaseUrl;
 
   constructor(private bcpAssociateTrackerService: BcpAssociateTrackerService,
@@ -37,6 +41,7 @@ export class BcpAssociateTrackerComponent {
     private route: ActivatedRoute,
     private httpClientService: HttpClient,
     private bcpFileExportService: BcpFileExportService,
+    private bcpDownloadService: BcpDownloadService,
     private toasterService: ToasterService) { }
 
   ngOnInit() {
@@ -189,7 +194,28 @@ export class BcpAssociateTrackerComponent {
   }
 
   downloadData() {
-    this.bcpFileExportService.exportAsExcelFile(null, this.projectId);
+    // this.bcpFileExportService.exportAsExcelFile(null, this.projectId);
+
+    var filterData = {
+      projectId: this.projectId,
+      associateNameOrId: this.searchText,
+      department: this.searchTextByDepartment,
+      location: this.searchTextByLocation
+    }
+    this.associateDetails = [];
+    this.bCPDailyUpdate = [];
+    this.bcpDownloadService.exportAccountDetails(filterData).subscribe(model => {
+      this.mergeData(model);
+      var data = [];
+      const sheetOneResponse = this.associateDetails.length > 0 ? this.associateDetails : [new AssociateDetails("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")];
+      const sheetTwoResponse = this.bCPDailyUpdate.length > 0 ? this.bCPDailyUpdate : [new BCPDailyUpdate("", "", "", "")];
+      data.push(sheetOneResponse);
+      data.push(sheetTwoResponse);
+      this.bcpFileExportService.exportAsExcelFile(data, this.projectId);
+    });
+
+
+    
   }
 
   onChange(value, associateId, columnName, controlIdex) {
@@ -509,4 +535,97 @@ export class BcpAssociateTrackerComponent {
       console.log(error);
     });
   }
+
+
+
+
+
+
+  mergeData(model: any) {
+    for (var index = 0; index < model[0].length; index++) {
+      var details = model[0][index];
+
+      var activityDetails = this.getAssciateActivity(model[1], details.AssociateId);
+      var latestRecord;
+      if (activityDetails != undefined && activityDetails.length > 0) {
+        latestRecord = this.getLatestRecord(activityDetails);
+      }
+      var data = new AssociateDetails(
+        model[0][index].MarketUnit,
+        model[0][index].AssociateId,
+        model[0][index].AssociateName,
+        model[0][index].AccountID,
+        model[0][index].AccountName,
+        model[0][index].ParentCustomerName,
+        model[0][index].Status,
+        model[0][index].AssociateResponsetoPersonalDeviceAvailabilitySurvey,
+        model[0][index].FinalMISDepartment,
+        model[0][index].Location,
+        latestRecord ? latestRecord.CurrentEnabledforWFH : "",
+        latestRecord ? latestRecord.WFHDeviceType : "",
+        latestRecord ? latestRecord.Comments : "",
+        latestRecord ? latestRecord.IstheResourceProductivefromHome : "",
+        model[0][index].AddressforShipping,
+        model[0][index].Contact,
+        model[0][index].LaptopRequested,
+        model[0][index].CorporateStatusLaptop,
+        model[0][index].DesktopRequested,
+        model[0][index].CorporateStatusDesktop,
+        model[0][index].RecordType,
+        model[0][index].Sort,
+        model[0][index].Temporary,
+        model[0][index].AlwaysNew2,
+        model[0][index].DuplicateFlag,
+        latestRecord ? latestRecord.PersonalReason : "",
+        latestRecord ? latestRecord.AssetId : "",
+        latestRecord ? latestRecord.PIIDataAccess : "",
+        latestRecord ? latestRecord.Protocol : "",
+        latestRecord ? latestRecord.BYODCompliance : "",
+        latestRecord ? latestRecord.Dongles : "");
+
+      this.associateDetails.push(data);
+
+      const getAddten = model[2].filter(atten => atten.AssociateID == model[0][index].AssociateId);
+      if (getAddten && getAddten.length > 0) {
+        if (this.bCPDailyUpdate.length > 0) {
+          this.bCPDailyUpdate = this.bCPDailyUpdate.concat(getAddten);
+        }
+        else {
+          this.bCPDailyUpdate = getAddten;
+        }
+      }
+    }
+  }
+
+  getAssciateActivity(model: any, associateId: any) {
+    var filterDetails = [];
+    for (var index = 0; index < model.length; index++) {
+      if (associateId == model[index].AssociateID) {
+        filterDetails.push(model[index]);
+      }
+    }
+
+    return filterDetails;
+  }
+
+  getLatestRecord(dataCollection: any) {
+    var latestDate = new Date(Math.max.apply(null, dataCollection.map(
+      function (e) {
+        var parts = e.UpdateDate.split('-');
+        return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+      }
+    )));
+
+    for (var index = 0; index < dataCollection.length; index++) {
+      var parts = dataCollection[index].UpdateDate.split('-');
+      var date = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+      if (latestDate.getTime() == date.getTime()) {
+        return dataCollection[index];
+      }
+    }
+  }
+
+
+
+
 }
