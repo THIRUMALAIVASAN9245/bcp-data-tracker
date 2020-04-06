@@ -21,7 +21,7 @@ export class BcpAssociateTrackerService {
     }
 
     getBcpAssociateTracker(projectId: any) {
-        var apiURL = this.baseUrl + "_api/lists/getbytitle('BCPMasterTrackerFull')/items?$filter=AccountID eq " + projectId + "&$top=5000";
+        var apiURL = this.baseUrl + "_api/lists/getbytitle('BCPMasterTrackerFull')/items?$filter=AccountID eq " + projectId + " and isDeleted eq 0&$top=5000";
         let getCourses = this.httpClientService.get(apiURL);
 
         return forkJoin([getCourses]).pipe(map((resspone: any) => {
@@ -48,7 +48,7 @@ export class BcpAssociateTrackerService {
                     item.Temporary,
                     item.AlwaysNew2,
                     item.DuplicateFlag,
-                    item.isDeleted == "N" ? false : true
+                    item.isDeleted == "0" ? false : true
                 );
             });
 
@@ -58,7 +58,7 @@ export class BcpAssociateTrackerService {
 
     getBCPUpdateAll(projectId: any) {
         const date = moment().format("DD-MM-YYYY");
-        var apiURL = this.baseUrl + "_vti_bin/listdata.svc/BCPDataTracker?$filter=((substringof(%27" + date + "%27,UpdateDate)%20eq%20true)%20and%20startswith(AccountID,%27" + projectId + "%27))&$top=1000";
+        var apiURL = this.baseUrl + "_vti_bin/listdata.svc/BCPDataTracker?$filter=((substringof(%27" + date + "%27,UpdateDate)%20eq%20true)%20and%20startswith(AccountID,%27" + projectId + "%27)%20and%20IsDeleted%20eq%200)&$top=1000";
 
         var apiURLLast = this.baseUrl + "_api/lists/getbytitle('BCPDataTracker')/items?$top=1&$select=Id&$orderby=Created%20desc";
         let getCourses = this.httpClientService.get(apiURL);
