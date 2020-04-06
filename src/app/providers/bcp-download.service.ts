@@ -114,7 +114,6 @@ export class BcpDownloadService {
     }
 
     forkJoin(serviceCalls: any) {
-
         return forkJoin(serviceCalls).pipe(map((response: any) => {
             const exportData = [] as any;
             var masterDataCount = this.httpCallCount(this.masterDataCount);
@@ -126,6 +125,7 @@ export class BcpDownloadService {
             for (var index = 0; index < masterDataCount; index++) {
                 allMasterDetail.push(...response[index].value);
             }
+            allMasterDetail = allMasterDetail.filter(x => x.isDeleted == 0);
             const getMasterDetails = allMasterDetail.map(item => {
                 return new UserDetail(
                     item.Title,
@@ -148,8 +148,7 @@ export class BcpDownloadService {
                     item.Sort,
                     item.Temporary,
                     item.AlwaysNew2,
-                    item.DuplicateFlag,
-                    item.isDeleted == "0" ? false : true
+                    item.DuplicateFlag
                 );
             });
 
@@ -161,7 +160,7 @@ export class BcpDownloadService {
             for (var index = masterDataCount; index < masterDataCount + masterDataCount; index++) {
                 dataTracker.push(...response[index].value);
             }
-
+            dataTracker = dataTracker.filter(x => x.IsDeleted == 0);
             const getUpdate = dataTracker.map(item => {
                 return new BCPDetailsUpdate(
                     item.AccountID,
@@ -240,7 +239,7 @@ export class BcpDownloadService {
                         var attendanceForAll = new BCPDailyUpdate(
                             element.AccountID,
                             element.AssociateID,
-                            "YES",
+                            "Yes",
                             initialDateString,
                         );
                         dailyAttendanceDetails.push(attendanceForAll);
@@ -259,6 +258,8 @@ export class BcpDownloadService {
                         );
                         dailyAttendanceDetails.push(attendanceForAll);
                     });
+
+                    dailyAttendanceDetails.push(...noAttendance[initialDateString]);
                 }
             }
 
@@ -312,13 +313,13 @@ export class BcpDownloadService {
         );
     }
 
-    getAssciateActivity(model: any, associateId: any) {
+    getAssciateActivity(model: any, dataTrackerAssociateId: string) {
         var filterDetails = [];
-        for (var index = 0; index < model.length; index++) {
-            if (associateId == model[index].AssociateID) {
-                filterDetails.push(model[index]);
+        model.forEach(element => {
+            if (dataTrackerAssociateId == element.AssociateID) {
+                filterDetails.push(element);
             }
-        }
+        });
 
         return filterDetails;
     }
