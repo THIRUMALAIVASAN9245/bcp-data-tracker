@@ -12,7 +12,7 @@ export class BcpChartService {
     }
 
     getBCPDataTrackerHistory(projectId: any) {
-        var apiURL = this.baseUrl + "_api/lists/getbytitle('BCPDataTrackerHistory')/items?$filter=Title eq " + projectId + "&$top=5000";
+        var apiURL = this.baseUrl + "_api/lists/getbytitle('BCPDataTracker')/items?$filter=Title eq " + projectId + " and IsDeleted eq 0 &$top=5000";
         let getCourses = this.httpClientService.get(apiURL);
 
         return forkJoin([getCourses]).pipe(map((resspone: any) => {

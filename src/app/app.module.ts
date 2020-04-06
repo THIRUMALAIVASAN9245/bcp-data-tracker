@@ -10,6 +10,7 @@ import { AppComponent } from './app.component';
 
 import { HomeComponent } from './home/home.conponent';
 import { BcpFileExportService } from './providers/bcp-file-export-service';
+import { BcpGraphExportService } from './providers/bcp-graph-export.service'
 import { BsModalService, ModalModule } from 'ngx-bootstrap';
 import { BcpChartComponent } from './bcp-chart-tracker/bcp-chart.component';
 import { AutocompleteLibModule } from 'angular-ng-autocomplete';
@@ -56,6 +57,7 @@ import { BcpGraphExportService } from './providers/bcp-graph-export.service';
     BcpAccountMasterService,
     BcpChartService,
     BcpFileExportService,
+    BcpGraphExportService,
     UserResolver,
     GrdFilterPipe,
     BcpGraphExportService
