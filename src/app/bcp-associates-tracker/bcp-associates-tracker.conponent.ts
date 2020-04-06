@@ -574,12 +574,13 @@ export class BcpAssociateTrackerComponent {
       var details = masterDetails[index];
 
       var activityDetails = this.bcpDownloadService.getAssciateActivity(model[1].value, details.AssociateID);
-      var latestRecord;
+      var latestRecord = null;
       if (activityDetails != undefined && activityDetails.length > 0) {
         latestRecord = this.bcpDownloadService.getLatestRecord(activityDetails);
       }
 
       var data = this.bcpDownloadService.associateDetailsSheet(details, latestRecord);
+
       this.associateDetails.push(data);
 
       const getAddten = model[2].value.filter(atten => atten.AssociateID == masterDetails[index].AssociateID);

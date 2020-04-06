@@ -45,8 +45,7 @@ export class UserDetail implements IUserDetail {
         public Sort: string,
         public Temporary: string,
         public AlwaysNew2: string,
-        public DuplicateFlag: string,
-        public IsDeleted: boolean) {
+        public DuplicateFlag: string) {
     }
 }
 

@@ -47,8 +47,7 @@ export class BcpAssociateTrackerService {
                     item.CorporateStatusDesktop,
                     item.Temporary,
                     item.AlwaysNew2,
-                    item.DuplicateFlag,
-                    item.isDeleted == "0" ? false : true
+                    item.DuplicateFlag
                 );
             });
 

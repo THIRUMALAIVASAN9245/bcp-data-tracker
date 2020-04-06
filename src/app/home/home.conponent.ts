@@ -90,7 +90,7 @@ export class HomeComponent {
       var details = masterDetails[index];
 
       var activityDetails = this.bcpDownloadService.getAssciateActivity(model[1].value, details.AssociateID);
-      var latestRecord;
+      var latestRecord = null;
       if (activityDetails != undefined && activityDetails.length > 0) {
         latestRecord = this.bcpDownloadService.getLatestRecord(activityDetails);
       }
