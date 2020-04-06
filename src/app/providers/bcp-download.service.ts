@@ -83,7 +83,7 @@ export class BcpDownloadService {
             apiURLMaster += "Location eq '" + filters.location + "' and ";
         }
 
-        return apiURLMaster += "AccountID eq " + filters.projectId + "&$top=" + this.recordsToReturn;
+        return apiURLMaster += "AccountID eq " + filters.projectId + "and isDeleted eq 0&$top=" + this.recordsToReturn;
     }
 
     loopURL(api: string, httpCallCount: number) {
@@ -149,7 +149,7 @@ export class BcpDownloadService {
                     item.Temporary,
                     item.AlwaysNew2,
                     item.DuplicateFlag,
-                    item.isDeleted == "N" ? false : true
+                    item.isDeleted == "0" ? false : true
                 );
             });
 

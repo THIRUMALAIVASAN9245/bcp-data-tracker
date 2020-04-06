@@ -16,7 +16,7 @@ export class BcpDataTrackerService {
     }
 
     getDataTracker(projectId: any) {
-        var apiURL = this.baseUrl + "_vti_bin/listdata.svc/BCPDataTracker?$filter=(startswith(AccountID,%27" + projectId + "%27))&$top=5000";
+        var apiURL = this.baseUrl + "_vti_bin/listdata.svc/BCPDataTracker?$filter=(startswith(AccountID,%27" + projectId + "%27)%20and%20IsDeleted%20eq%200)&$top=5000";
         let getCourses = this.httpClientService.get(apiURL);
 
         return forkJoin([getCourses]).pipe(map((resspone: any) => {

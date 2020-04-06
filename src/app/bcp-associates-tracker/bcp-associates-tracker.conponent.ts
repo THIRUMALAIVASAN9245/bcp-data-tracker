@@ -227,7 +227,31 @@ export class BcpAssociateTrackerComponent {
 
   onChange(value, associateId, columnName, controlIdex) {
     const objIndex = this.bcpDetailsDisplay.findIndex((obj => obj.AssociateID == associateId));
-    const data = this.bcpDetailsDisplay[objIndex];
+    let data = this.bcpDetailsDisplay[objIndex];
+
+    if (data == null) {
+      const bcpDetailsEmpty = {
+        AccountId: this.projectId,
+        AssociateID: associateId,
+        CurrentEnabledforWFH: "",
+        WFHDeviceType: "",
+        Comments: "",
+        IstheResourceProductivefromHome: "",
+        PersonalReason: "",
+        AssetId: "",
+        PIIDataAccess: "",
+        Protocol: "",
+        BYODCompliance: "",
+        Dongles: "",
+        UpdateDate: moment().format("DD-MM-YYYY"),
+        UniqueId: ""
+      }
+
+      this.bcpDetailsDisplay.push(bcpDetailsEmpty);
+      const objIndex = this.bcpDetailsDisplay.findIndex((obj => obj.AssociateID == associateId));
+      data = this.bcpDetailsDisplay[objIndex];
+    }
+
     this.updateBcpDetails(value, columnName, objIndex, data, controlIdex);
   }
 
@@ -560,10 +584,10 @@ export class BcpAssociateTrackerComponent {
 
       const getAddten = model[2].value.filter(atten => atten.AssociateID == masterDetails[index].AssociateID);
       if (getAddten && getAddten.length > 0) {
-          getAddten.forEach(element => {
-            var data = this.bcpDownloadService.attendanceDetailsSheet(element);
-            this.bCPDailyUpdate.push(data);
-          });
+        getAddten.forEach(element => {
+          var data = this.bcpDownloadService.attendanceDetailsSheet(element);
+          this.bCPDailyUpdate.push(data);
+        });
       }
     }
   }

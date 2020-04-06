@@ -50,7 +50,7 @@ export class BcpChartService {
     }
 
     getBCPDataTrackerHistoryCount(accountId) {
-        const url = this.baseUrl + "_vti_bin/ListData.svc/BCPMasterTrackerFull/$count?$filter=(startswith(AccountID,%27" + accountId + "%27))";
+        const url = this.baseUrl + "_vti_bin/ListData.svc/BCPMasterTrackerFull/$count?$filter=(startswith(AccountID,%27" + accountId + "%27)%20and%20IsDeleted%20eq%200)";
         return this.httpClientService.get(url).pipe(map((respone: any) => {
             if (respone) {
                 return respone;
