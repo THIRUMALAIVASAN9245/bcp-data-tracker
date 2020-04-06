@@ -2,6 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { BcpChartService } from '../providers/bcp-chart.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BCPDailyUpdate } from '../models/BCPDailyUpdate';
+import { BcpAssociateTrackerService } from '../providers/bcp-associates-tracker.service';
+import * as FileSaver from 'file-saver';
+import * as XLSX from 'xlsx';
+
+const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+const EXCEL_EXTENSION = '.xlsx';
 
 declare var require: any;
 @Component({
@@ -11,6 +17,7 @@ declare var require: any;
 })
 export class BcpChartComponent implements OnInit {
     constructor(private bcpChartService: BcpChartService,
+        private bcpAssociateTrackerService: BcpAssociateTrackerService,
         private router: Router,
         private route: ActivatedRoute) { }
 
@@ -19,6 +26,7 @@ export class BcpChartComponent implements OnInit {
     chartData: any = [];
     availableDate: any = [];
     attendanceData: any = [];
+    TotalAttendanceDownloadData: any = [];
     deviceType: any = [];
     accountCount: any;
 
@@ -365,7 +373,7 @@ export class BcpChartComponent implements OnInit {
         require('highcharts/modules/exporting')(Highcharts);
         Highcharts.chart('container4', {
             chart: {
-                type: 'line'
+                type: 'column'
             },
             title: {
                 text: 'Attendance'
@@ -381,17 +389,74 @@ export class BcpChartComponent implements OnInit {
                 enabled: false
             },
             plotOptions: {
-                line: {
-                    dataLabels: {
-                        enabled: true
-                    },
-                    enableMouseTracking: false
+                series: {
+                    point: {
+                        events: {
+                            click: (currentValue) => {
+                               this.attendanceDownloadByDate(currentValue.point.category);
+                            }
+                        }
+                    }
                 }
             },
             series: [{
                 name: 'Attendance',
                 data: yaxis
             }]
+        });
+    }
+
+    attendanceDownloadByDate(specificDate?:any) {
+        let PresentMembers = [];
+        let AbsentMembers = [];
+        this.TotalAttendanceDownloadData = [];
+        this.bcpAssociateTrackerService.getBcpAssociateTracker(this.projectId).subscribe(model => {
+            let totalAccountMembers = model.userDetail;
+            this.bcpChartService.getAccountAttendanceData(this.projectId).subscribe((response: BCPDailyUpdate[]) => {
+                let uniqueUpdateDate;
+                if(specificDate) {
+                    uniqueUpdateDate = [specificDate];
+                } else {
+                    uniqueUpdateDate = [...new Set(response.map(item => item.UpdateDate))];
+                }
+                uniqueUpdateDate.forEach(selectedDate => {
+                    let membersAbsentOnSelectedDate = response.filter(item => item.UpdateDate == selectedDate && item.Attendance == "No");
+                    PresentMembers = totalAccountMembers.filter(x => !membersAbsentOnSelectedDate.map(y => y.AssociateID).includes(x.AssociateId))
+                    .map(a=>({
+                        AccountID: a.AccountID,
+                        AccountName: a.AccountName,
+                        AssociateId: a.AssociateId,
+                        AssociateName: a.AssociateName,
+                        Date: selectedDate,
+                        Attendance: "Yes"
+                    }));
+    
+                    let membersPresentOnSelectedDate = response.filter(item => item.UpdateDate == selectedDate && item.Attendance == "No");
+                    AbsentMembers = totalAccountMembers.filter(x => membersPresentOnSelectedDate.map(y => y.AssociateID).includes(x.AssociateId))
+                    .map(a=>({
+                        AccountID: a.AccountID,
+                        AccountName: a.AccountName,
+                        AssociateId: a.AssociateId,
+                        AssociateName: a.AssociateName,
+                        Date: selectedDate,
+                        Attendance: "No"
+                    }));
+
+                    this.TotalAttendanceDownloadData.push.apply(this.TotalAttendanceDownloadData, AbsentMembers.concat(PresentMembers))
+
+                });
+
+                if(this.TotalAttendanceDownloadData.length>0){
+                    var wb = { SheetNames: [], Sheets: {} };
+                    const worksheet1: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.TotalAttendanceDownloadData);
+                    wb.SheetNames.push("AttendanceDetails");
+                    wb.Sheets["AttendanceDetails"] = worksheet1;
+                    const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                    const data: Blob = new Blob([excelBuffer], { type: EXCEL_TYPE });
+                    FileSaver.saveAs(data, 'Attendance' + '_export_' + EXCEL_EXTENSION);
+    
+                }
+            });
         });
     }
 
