@@ -5,7 +5,6 @@ import { BCPDailyUpdate } from '../models/BCPDailyUpdate';
 import { BcpAssociateTrackerService } from '../providers/bcp-associates-tracker.service';
 import * as FileSaver from 'file-saver';
 import * as XLSX from 'xlsx';
-import { BcpGraphExportService } from '../providers/bcp-graph-export.service';
 import { BCPDetailsUpdate } from '../models/BCPDetailsUpdate';
 
 const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
@@ -21,8 +20,7 @@ export class BcpChartComponent implements OnInit {
     constructor(private bcpChartService: BcpChartService,
         private bcpAssociateTrackerService: BcpAssociateTrackerService,
         private router: Router,
-        private route: ActivatedRoute,
-        private bcpGraphExportService: BcpGraphExportService) { }
+        private route: ActivatedRoute) { }
 
     keyword = 'name';
     projectId: any;
@@ -33,8 +31,8 @@ export class BcpChartComponent implements OnInit {
     deviceType: any = [];
     accountCount: any;
     protocolData: any = [];
-    wfhData : any = [];
-    piiAccessData : any = [];
+    wfhData: any = [];
+    piiAccessData: any = [];
     byodData: any = [];
 
     ngOnInit() {
@@ -47,14 +45,18 @@ export class BcpChartComponent implements OnInit {
 
     downloadProtocolReport() {
         if (this.protocolData.length > 0) {
-            var wb = { SheetNames: [], Sheets: {} };
-            const worksheet1: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.protocolData);
-            wb.SheetNames.push("ProtocolReport");
-            wb.Sheets["ProtocolReport"] = worksheet1;
-            const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-            const data: Blob = new Blob([excelBuffer], { type: EXCEL_TYPE });
-            FileSaver.saveAs(data, 'Protocol' + '_export_' + EXCEL_EXTENSION);
+            this.exportExcel(this.protocolData, this.projectId + "Protocol", "ProtocolReport");
         }
+    }
+
+    exportExcel(json: any[], fileName: string, sheetName: string) {
+        var wb = { SheetNames: [], Sheets: {} };
+        const worksheet1: XLSX.WorkSheet = XLSX.utils.json_to_sheet(json);
+        wb.SheetNames.push("ProtocolReport");
+        wb.Sheets["ProtocolReport"] = worksheet1;
+        const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const data: Blob = new Blob([excelBuffer], { type: EXCEL_TYPE });
+        FileSaver.saveAs(data, fileName + '_export_' + EXCEL_EXTENSION);
     }
 
     NavigateToUserTracker() {
@@ -84,8 +86,8 @@ export class BcpChartComponent implements OnInit {
         const uniqueUpdateDate = [...new Set(chartData.map(item => item.UpdateDate))];
 
         this.getWFHReadiness(chartData);
-        this.getDeviceType(chartData, uniqueUpdateDate);
-        this.getPersonalReason(chartData, uniqueUpdateDate);
+        this.getDeviceType(chartData);
+        this.getPersonalReason(chartData);
         this.getProtocolType(chartData);
         this.getPiiAcess(chartData);
         this.getBYODCompliance(chartData);
@@ -95,97 +97,79 @@ export class BcpChartComponent implements OnInit {
         debugger;
         var wfhRedinessYes;
         var wfhRedinessNo;
-            var uniqueYes = chartData.filter(item => item.CurrentEnabledforWFH == "Yes");
-            uniqueYes.forEach(x=>{
-                this.wfhData.push({ProjectId:x.AccountId,AssociateId:x.AssociateID,CurrentEnabledforWFH:"Yes"});
-            });
-            var uniqueNo  = chartData.filter(item => item.CurrentEnabledforWFH == "No");
-            uniqueNo.forEach(x=>{
-                this.wfhData.push({ProjectId:x.AccountId,AssociateId:x.AssociateID,CurrentEnabledforWFH:"No"});
-            });
-            const uniqueNoCount = chartData.length - uniqueYes.length;
-            wfhRedinessYes=parseFloat(((uniqueYes.length/chartData.length)*100).toFixed(2));
-            wfhRedinessNo=parseFloat(((uniqueNoCount/chartData.length)*100).toFixed(2));
+        var uniqueYes = chartData.filter(item => item.CurrentEnabledforWFH == "Yes");
+        uniqueYes.forEach(x => {
+            this.wfhData.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, CurrentEnabledforWFH: "Yes" });
+        });
+        var uniqueNo = chartData.filter(item => item.CurrentEnabledforWFH == "No");
+        uniqueNo.forEach(x => {
+            this.wfhData.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, CurrentEnabledforWFH: "No" });
+        });
+        const uniqueNoCount = chartData.length - uniqueYes.length;
+        wfhRedinessYes = parseFloat(((uniqueYes.length / chartData.length) * 100).toFixed(2));
+        wfhRedinessNo = parseFloat(((uniqueNoCount / chartData.length) * 100).toFixed(2));
         this.workFromHomeGraph(wfhRedinessYes, wfhRedinessNo);
     }
 
-    WFHReadinessExcelSheetData(){
+    WFHReadinessExcelSheetData() {
         console.log(this.wfhData);
-        if(this.wfhData.length>0){
-            var wb = { SheetNames: [], Sheets: {} };
-            const worksheet1: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.wfhData);
-            wb.SheetNames.push("WFHReadinessDetails");
-            wb.Sheets["WFHReadinessDetails"] = worksheet1;
-            const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-            const data: Blob = new Blob([excelBuffer], { type: EXCEL_TYPE });
-            FileSaver.saveAs(data, 'WFHReadiness' + '_export_' + EXCEL_EXTENSION);
-
+        if (this.wfhData.length > 0) {
+            this.exportExcel(this.wfhData, this.projectId + "WFHReadiness", "WFHReadinessDetails");
         }
     }
-   
+
     private getPiiAcess(chartData) {
         debugger
-        var PIIDataAccessYes ;
-        var PIIDataAccessNo ;
-            var uniqueYes = chartData.filter(item => item.PIIDataAccess == "Yes");
-            uniqueYes.forEach(x=>{
-                this.piiAccessData.push({ProjectId:x.AccountId,AssociateId:x.AssociateID,PIIDataAccess:"Yes"});
-            });
-            var uniqueNo = chartData.filter(item => item.PIIDataAccess == "No");
-            uniqueNo.forEach(x=>{
-                this.piiAccessData.push({ProjectId:x.AccountId,AssociateId:x.AssociateID,PIIDataAccess:"No"});
-            });
-            const uniqueNoCount = chartData.length - uniqueYes.length;
-            PIIDataAccessYes=parseFloat(((uniqueYes.length/chartData.length)*100).toFixed(2));
-            PIIDataAccessNo=parseFloat(((uniqueNoCount/chartData.length)*100).toFixed(2));
+        var PIIDataAccessYes;
+        var PIIDataAccessNo;
+        var uniqueYes = chartData.filter(item => item.PIIDataAccess == "Yes");
+        uniqueYes.forEach(x => {
+            this.piiAccessData.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, PIIDataAccess: "Yes" });
+        });
+        var uniqueNo = chartData.filter(item => item.PIIDataAccess == "No");
+        uniqueNo.forEach(x => {
+            this.piiAccessData.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, PIIDataAccess: "No" });
+        });
+        const uniqueNoCount = chartData.length - uniqueYes.length;
+        PIIDataAccessYes = parseFloat(((uniqueYes.length / chartData.length) * 100).toFixed(2));
+        PIIDataAccessNo = parseFloat(((uniqueNoCount / chartData.length) * 100).toFixed(2));
         this.piiAccessGraph(PIIDataAccessYes, PIIDataAccessNo);
     }
 
-    PiiAcessExcelSheetData(){
+    PiiAcessExcelSheetData() {
         console.log(this.piiAccessData);
-        if(this.piiAccessData.length>0){
-            var wb = { SheetNames: [], Sheets: {} };
-            const worksheet1: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.piiAccessData);
-            wb.SheetNames.push("PIIDataAccessDetails");
-            wb.Sheets["PIIDataAccessDetails"] = worksheet1;
-            const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-            const data: Blob = new Blob([excelBuffer], { type: EXCEL_TYPE });
-            FileSaver.saveAs(data, 'PIIDataAccess' + '_export_' + EXCEL_EXTENSION);
+        if (this.piiAccessData.length > 0) {
+            this.exportExcel(this.piiAccessData, this.projectId + "PIIDataAccess", "PIIDataAccessDetails");
+
         }
     }
 
     private getBYODCompliance(chartData) {
         debugger
-        var BYODComplianceYes ;
-        var BYODComplianceNo ;
-            var uniqueYes = chartData.filter(item => item.BYODCompliance == "Yes");
-            uniqueYes.forEach(x=>{
-                this.byodData.push({ProjectId:x.AccountId,AssociateId:x.AssociateID,BYODCompliance:"Yes"});
-            });
-            var uniqueNo = chartData.filter(item => item.BYODCompliance == "NO");
-            uniqueNo.forEach(x=>{
-                this.byodData.push({ProjectId:x.AccountId,AssociateId:x.AssociateID,BYODCompliance:"No"});
-            });
-            const uniqueNoCount = chartData.length - uniqueYes.length;
-            BYODComplianceYes=parseFloat(((uniqueYes.length/chartData.length)*100).toFixed(2));
-            BYODComplianceNo=parseFloat(((uniqueNoCount/chartData.length)*100).toFixed(2));
+        var BYODComplianceYes;
+        var BYODComplianceNo;
+        var uniqueYes = chartData.filter(item => item.BYODCompliance == "Yes");
+        uniqueYes.forEach(x => {
+            this.byodData.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, BYODCompliance: "Yes" });
+        });
+        var uniqueNo = chartData.filter(item => item.BYODCompliance == "No");
+        uniqueNo.forEach(x => {
+            this.byodData.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, BYODCompliance: "No" });
+        });
+        const uniqueNoCount = chartData.length - uniqueYes.length;
+        BYODComplianceYes = parseFloat(((uniqueYes.length / chartData.length) * 100).toFixed(2));
+        BYODComplianceNo = parseFloat(((uniqueNoCount / chartData.length) * 100).toFixed(2));
         this.BYODComplianceGraph(BYODComplianceYes, BYODComplianceNo);
     }
 
-    BYODComplianceExcelSheetData(){
+    BYODComplianceExcelSheetData() {
         console.log(this.byodData);
-        if(this.byodData.length>0){
-            var wb = { SheetNames: [], Sheets: {} };
-            const worksheet1: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.byodData);
-            wb.SheetNames.push("BYODComplianceDetails");
-            wb.Sheets["BYODComplianceDetails"] = worksheet1;
-            const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-            const data: Blob = new Blob([excelBuffer], { type: EXCEL_TYPE });
-            FileSaver.saveAs(data, 'BYODCompliance' + '_export_' + EXCEL_EXTENSION);
+        if (this.byodData.length > 0) {
+            this.exportExcel(this.byodData, this.projectId + "BYODCompliance", "BYODComplianceDetails");
         }
     }
 
-    private getDeviceType(chartData, uniqueUpdateDate) {
+    private getDeviceType(chartData) {
         var personalDevice = [];
         var cognizantDevice = [];
         var customerDevice = [];
@@ -217,14 +201,13 @@ export class BcpChartComponent implements OnInit {
         this.deviceTypeGraph(personalDevice, cognizantDevice, customerDevice, cognizantBYODs);
     }
 
-    private getPersonalReason(chartData, uniqueUpdateDate) {
+    private getPersonalReason(chartData) {
         var noDevice = [];
         var unplannedLeave = [];
         var plannedLeave = [];
         var workingAtOffice = [];
         var connectivity = [];
         var covid19 = [];
-        // var currentDate = moment().format("DD-MM-YYYY");
 
         var nodevice = chartData.filter(item => item.PersonalReason == "No device");
         nodevice.forEach(x => {
@@ -325,29 +308,20 @@ export class BcpChartComponent implements OnInit {
     }
 
     exportContainer1() {
-        console.log(this.deviceType);
-        var result = this.deviceType.map(item => ({
-            AccountID: item.Title,
-            AssociateID: item.AssociateID,
-            DeviceType: item.WFHDeviceType
-        }));
-        var wb = { SheetNames: [], Sheets: {} };
-        const worksheet1: XLSX.WorkSheet = XLSX.utils.json_to_sheet(result);
-        wb.SheetNames.push("DeviceType");
-        wb.Sheets["DeviceType"] = worksheet1;
-        const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-        const data: Blob = new Blob([excelBuffer], { type: EXCEL_TYPE });
-        FileSaver.saveAs(data, 'Device' + '_export_' + EXCEL_EXTENSION);
+        if (this.deviceType.length > 0) {
+            this.exportExcel(this.deviceType, this.projectId + "DeviceType", "DeviceType");
+        }
     }
 
     deviceTypeGraph(personalDevice, cognizantDevice, customerDevice, cognizantBYODs) {
-        // // var xaxis = [];
         var Yaxis_personal = [];
         var Yaxis_cts = [];
         var Yaxis_cus = [];
         var Yaxis_byod = [];
+        var fileName = "";
+        var sheetName = "Device Availability";
+        var resultGraph = [];
         personalDevice.forEach(element => {
-            // // xaxis.push(element.date);
             Yaxis_personal.push(element.count);
         });
         cognizantDevice.forEach(element => {
@@ -370,7 +344,7 @@ export class BcpChartComponent implements OnInit {
                 text: 'Personal/Customer/Cognizant Device Availability'
             },
             xAxis: {
-                categories: ['Devices']
+                categories: ['Device']
             },
             yAxis: {
                 title: {
@@ -386,46 +360,44 @@ export class BcpChartComponent implements OnInit {
                     point: {
                         events: {
                             click: function () {
-                                alert('Device: ' + this.x + ', value: ' + this.y);
-                                console.log('Device: ' + this.category + ', value: ' + this.y + "Series name - " + this.series.name);
-                                console.log(this.deviceType);
-                                console.log("Series name - " + this.series.name);
                                 if (this.series.name == "Cognizant BYOD") {
 
-                                    var result = cognizantBYODs[0].data.map(item => ({
+                                    resultGraph = cognizantBYODs[0].data.map(item => ({
                                         AccountID: item.Title,
                                         AssociateID: item.AssociateID,
                                         DeviceType: item.WFHDeviceType
                                     }));
-                                    console.log('BYOD' + result);
-                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Device Availability");
+                                    fileName = "BYOD";
                                 } else if (this.series.name == "Cognizant Device") {
 
-                                    var result = cognizantDevice[0].data.map(item => ({
+                                    resultGraph = cognizantDevice[0].data.map(item => ({
                                         AccountID: item.Title,
                                         AssociateID: item.AssociateID,
                                         DeviceType: item.WFHDeviceType
                                     }));
-                                    console.log('Cognizant Device' + result);
-                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Device Availability");
+                                    fileName = "Cognizant";
                                 } else if (this.series.name == "Customer Device") {
-                                    console.log('Customer Device' + this.deviceType);
-                                    var result = customerDevice[0].data.map(item => ({
+                                    resultGraph = customerDevice[0].data.map(item => ({
                                         AccountID: item.Title,
                                         AssociateID: item.AssociateID,
                                         DeviceType: item.WFHDeviceType
                                     }));
-                                    console.log('Customer Device' + result);
-                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Device Availability");
+                                    fileName = "Customer";
                                 } else if (this.series.name == "Personal Device") {
-                                    var result = personalDevice[0].data.map(item => ({
+                                    resultGraph = personalDevice[0].data.map(item => ({
                                         AccountID: item.Title,
                                         AssociateID: item.AssociateID,
                                         DeviceType: item.WFHDeviceType
                                     }));
-                                    console.log('Personal Device' + result);
-                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Device Availability");
+                                    fileName = "Personal";
                                 }
+                                var wb = { SheetNames: [], Sheets: {} };
+                                const worksheet1: XLSX.WorkSheet = XLSX.utils.json_to_sheet(resultGraph);
+                                wb.SheetNames.push(sheetName);
+                                wb.Sheets[sheetName] = worksheet1;
+                                const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                                const data: Blob = new Blob([excelBuffer], { type: EXCEL_TYPE });
+                                FileSaver.saveAs(data, fileName + '_export_' + EXCEL_EXTENSION);
                             }
                         }
                     }
@@ -456,9 +428,9 @@ export class BcpChartComponent implements OnInit {
         });
     }
 
-    piiAccessGraph(PIIDataAccessYes, PIIDataAccessNo){
-        var Highcharts =require('highcharts');  
-        require('highcharts/modules/exporting')(Highcharts); 
+    piiAccessGraph(PIIDataAccessYes, PIIDataAccessNo) {
+        var Highcharts = require('highcharts');
+        require('highcharts/modules/exporting')(Highcharts);
         Highcharts.chart('container6', {
             chart: {
                 plotBackgroundColor: null,
@@ -487,141 +459,132 @@ export class BcpChartComponent implements OnInit {
                     }
                 },
             },
-          series: [{
-            name: 'PII Access',
-            colorByPoint: true,
-            data: [{
-                name: 'PII Access - yes',
-                y: PIIDataAccessYes,
-                sliced: true,
-                selected: true
-            }, {
-                name: 'PII Access - No',
-                y: PIIDataAccessNo
+            series: [{
+                name: 'PII Access',
+                colorByPoint: true,
+                data: [{
+                    name: 'PII Access - yes',
+                    y: PIIDataAccessYes,
+                    sliced: true,
+                    selected: true
+                }, {
+                    name: 'PII Access - No',
+                    y: PIIDataAccessNo
+                }]
             }]
-        }]
         });
-      }
-      workFromHomeGraph(wfhRedinessYes, wfhRedinessNo){
-          var Highcharts =require('highcharts');  
-          require('highcharts/modules/exporting')(Highcharts); 
-          Highcharts.chart('container2', {
-              chart: {
-                  plotBackgroundColor: null,
-                  plotBorderWidth: null,
-                  plotShadow: false,
-                  type: 'pie'
-              },
-              title: {
-                  text: 'Work From Home'
-              },
-              tooltip: {
-                  pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-              },
-              accessibility: {
-                  point: {
-                      valueSuffix: '%'
-                  }
-              },
-              plotOptions: {
-                  pie: {
-                      allowPointSelect: true,
-                      cursor: 'pointer',
-                      dataLabels: {
-                          enabled: true,
-                          format: '<b>{point.name}</b>: {point.percentage:.1f} %'
-                      }
-                  }
-              },
+    }
+    workFromHomeGraph(wfhRedinessYes, wfhRedinessNo) {
+        var Highcharts = require('highcharts');
+        require('highcharts/modules/exporting')(Highcharts);
+        Highcharts.chart('container2', {
+            chart: {
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: false,
+                type: 'pie'
+            },
+            title: {
+                text: 'Work From Home'
+            },
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+            },
+            accessibility: {
+                point: {
+                    valueSuffix: '%'
+                }
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+                    }
+                }
+            },
             series: [{
-              name: 'Work From Home',
-              colorByPoint: true,
-              data: [{
-                  name: 'WFH - yes',
-                  y: wfhRedinessYes,
-                  sliced: true,
-                  selected: true
-              }, {
-                  name: 'WFH - No',
-                  y: wfhRedinessNo
-              }]
-          }]
-          });
-        }
-        BYODComplianceGraph(BYODComplianceYes, BYODComplianceNo){
-          var Highcharts =require('highcharts');  
-          require('highcharts/modules/exporting')(Highcharts); 
-          Highcharts.chart('container7', {
-              chart: {
-                  plotBackgroundColor: null,
-                  plotBorderWidth: null,
-                  plotShadow: false,
-                  type: 'pie'
-              },
-              title: {
-                  text: 'BYODCompliance'
-              },
-              tooltip: {
-                  pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-              },
-              accessibility: {
-                  point: {
-                      valueSuffix: '%'
-                  }
-              },
-              plotOptions: {
-                  pie: {
-                      allowPointSelect: true,
-                      cursor: 'pointer',
-                      dataLabels: {
-                          enabled: true,
-                          format: '<b>{point.name}</b>: {point.percentage:.1f} %'
-                      }
-                  }
-              },
+                name: 'Work From Home',
+                colorByPoint: true,
+                data: [{
+                    name: 'WFH - yes',
+                    y: wfhRedinessYes,
+                    sliced: true,
+                    selected: true
+                }, {
+                    name: 'WFH - No',
+                    y: wfhRedinessNo
+                }]
+            }]
+        });
+    }
+    BYODComplianceGraph(BYODComplianceYes, BYODComplianceNo) {
+        var Highcharts = require('highcharts');
+        require('highcharts/modules/exporting')(Highcharts);
+        Highcharts.chart('container7', {
+            chart: {
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: false,
+                type: 'pie'
+            },
+            title: {
+                text: 'BYODCompliance'
+            },
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+            },
+            accessibility: {
+                point: {
+                    valueSuffix: '%'
+                }
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+                    }
+                }
+            },
             series: [{
-              name: 'BYODCompliance',
-              colorByPoint: true,
-              data: [{
-                  name: 'BYODCompliance - yes',
-                  y: BYODComplianceYes,
-                  sliced: true,
-                  selected: true
-              }, {
-                  name: 'BYODCompliance - No',
-                  y: BYODComplianceNo
-              }]
-          }]
-          });
-        }
+                name: 'BYODCompliance',
+                colorByPoint: true,
+                data: [{
+                    name: 'BYODCompliance - yes',
+                    y: BYODComplianceYes,
+                    sliced: true,
+                    selected: true
+                }, {
+                    name: 'BYODCompliance - No',
+                    y: BYODComplianceNo
+                }]
+            }]
+        });
+    }
 
     personalLeaveExcelSheetData() {
-        console.log(this.availableDate);
-        var result = this.availableDate.map(item => ({
-            AccountID: item.Title,
-            AssociateID: item.AssociateID,
-            PersonalLeave: item.PersonalLeave
-        }));
-        var wb = { SheetNames: [], Sheets: {} };
-        const worksheet1: XLSX.WorkSheet = XLSX.utils.json_to_sheet(result);
-        wb.SheetNames.push("PersonalReason");
-        wb.Sheets["PersonalReason"] = worksheet1;
-        const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-        const data: Blob = new Blob([excelBuffer], { type: EXCEL_TYPE });
-        FileSaver.saveAs(data, 'Personal' + '_export_' + EXCEL_EXTENSION);
+        if (this.availableDate.length > 0) {
+            this.exportExcel(this.availableDate, this.projectId + "PersonalReason", "PersonalReason");
+        }
     }
 
     personalReasonGraph(noDevice, unplannedLeave, plannedLeave, workingAtOffice, connectivity, covid19) {
-        // var xaxis = [];
         var noDeviceYaxis = [];
         var unplannedLeaveYaxis = [];
         var plannedLeaveYaxis = [];
         var workingAtOfficeYaxis = [];
         var connectivityYaxis = [];
         var covidYaxis = [];
+        var fileName = "";
+        var sheetName = "Personal Reason";
+        var resultGraph = [];
 
         noDevice.forEach(element => {
-            // xaxis.push(element.date);
             noDeviceYaxis.push(element.count);
         });
         unplannedLeave.forEach(element => {
@@ -671,65 +634,61 @@ export class BcpChartComponent implements OnInit {
                         events: {
                             click: function (event) {
                                 if (this.series.name == "No device") {
-                                    console.log(noDevice[0].data);
-                                    var result = noDevice[0].data.map(item => ({
+                                    resultGraph = noDevice[0].data.map(item => ({
                                         AccountID: item.Title,
                                         AssociateID: item.AssociateID,
                                         PersonalLeave: item.PersonalLeave
                                     }));
-                                    console.log('Result1' + result);
-                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Personal Reason");
+                                    fileName = "Nodevice";
                                 }
                                 else if (this.series.name == "COVID19") {
-                                    console.log(covid19[0].data);
-                                    var result = covid19[0].data.map(item => ({
+                                    resultGraph = covid19[0].data.map(item => ({
                                         AccountID: item.Title,
                                         AssociateID: item.AssociateID,
                                         PersonalLeave: item.PersonalLeave
                                     }));
-                                    console.log('Result1' + result);
-                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Personal Reason");
+                                    fileName = "COVID19";
                                 }
                                 else if (this.series.name == "Unplanned leave") {
-                                    console.log(unplannedLeave[0].data);
-                                    var result = unplannedLeave[0].data.map(item => ({
+                                    resultGraph = unplannedLeave[0].data.map(item => ({
                                         AccountID: item.Title,
                                         AssociateID: item.AssociateID,
                                         PersonalLeave: item.PersonalLeave
                                     }));
-                                    console.log('Result1' + result);
-                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Personal Reason");
+                                    fileName = "Unplanned";
                                 }
                                 else if (this.series.name == "Planned leave") {
-                                    console.log(plannedLeave[0].data);
-                                    var result = plannedLeave[0].data.map(item => ({
+                                    resultGraph = plannedLeave[0].data.map(item => ({
                                         AccountID: item.Title,
                                         AssociateID: item.AssociateID,
                                         PersonalLeave: item.PersonalLeave
                                     }));
-                                    console.log('Result1' + result);
-                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Personal Reason");
+                                    fileName = "Planned";
                                 }
                                 else if (this.series.name == "Working at office") {
-                                    console.log(workingAtOffice[0].data);
-                                    var result = workingAtOffice[0].data.map(item => ({
+                                    resultGraph = workingAtOffice[0].data.map(item => ({
                                         AccountID: item.Title,
                                         AssociateID: item.AssociateID,
                                         PersonalLeave: item.PersonalLeave
                                     }));
-                                    console.log('Result1' + result);
-                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Personal Reason");
+                                    fileName = "WAO";
                                 }
                                 else if (this.series.name == "Connectivity") {
-                                    console.log(connectivity[0].data);
-                                    var result = connectivity[0].data.map(item => ({
+                                    resultGraph = connectivity[0].data.map(item => ({
                                         AccountID: item.Title,
                                         AssociateID: item.AssociateID,
                                         PersonalLeave: item.PersonalLeave
                                     }));
-                                    console.log('Result1' + result);
-                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Personal Reason");
+                                    fileName = "Connectivity";
                                 }
+
+                                var wb = { SheetNames: [], Sheets: {} };
+                                const worksheet1: XLSX.WorkSheet = XLSX.utils.json_to_sheet(resultGraph);
+                                wb.SheetNames.push(sheetName);
+                                wb.Sheets[sheetName] = worksheet1;
+                                const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                                const data: Blob = new Blob([excelBuffer], { type: EXCEL_TYPE });
+                                FileSaver.saveAs(data, fileName + '_export_' + EXCEL_EXTENSION);
                             }
                         }
                     }
@@ -847,13 +806,7 @@ export class BcpChartComponent implements OnInit {
                 });
 
                 if (this.TotalAttendanceDownloadData.length > 0) {
-                    var wb = { SheetNames: [], Sheets: {} };
-                    const worksheet1: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.TotalAttendanceDownloadData);
-                    wb.SheetNames.push("AttendanceDetails");
-                    wb.Sheets["AttendanceDetails"] = worksheet1;
-                    const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-                    const data: Blob = new Blob([excelBuffer], { type: EXCEL_TYPE });
-                    FileSaver.saveAs(data, 'Attendance' + '_export_' + EXCEL_EXTENSION);
+                    this.exportExcel(this.TotalAttendanceDownloadData, this.projectId + "Attendance", "AttendanceDetails");
 
                 }
             });
@@ -861,6 +814,10 @@ export class BcpChartComponent implements OnInit {
     }
 
     protocolGraph(chartData, protocolA, protocolB1, protocolB2, protocolB3, protocolB4, protocolC1, protocolC2, protocolC3, protocolC4, protocolD) {
+
+        var fileName = "";
+        var sheetName = "Protocol Details";
+        var resultGraph = [];
 
         var Highcharts = require('highcharts');
         require('highcharts/modules/exporting')(Highcharts);
@@ -924,117 +881,124 @@ export class BcpChartComponent implements OnInit {
                                     protocol = "D";
                                 }
 
-                                alert('Protocol: ' + protocol + ', value: ' + this.y);
 
                                 if (protocolA == this.y) {
-                                    var result = chartData.filter(x => x.Protocol == "ProtocolA").map(item => {
+                                    resultGraph = chartData.filter(x => x.Protocol == "ProtocolA").map(item => {
                                         return new (
                                             item.Title,
                                             item.AssociateID,
                                             item.Protocol
                                         )
                                     });
-                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Protocol");
+                                    fileName = "ProtocolA";
                                 }
 
                                 else if (protocolB1 == this.y) {
-                                    var result = chartData.filter(x => x.Protocol == "ProtocolB1").map(item => {
+                                    resultGraph = chartData.filter(x => x.Protocol == "ProtocolB1").map(item => {
                                         return new (
                                             item.Title,
                                             item.AssociateID,
                                             item.Protocol
                                         )
                                     });
-                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Protocol");
+                                    fileName = "ProtocolB1";
                                 }
 
                                 else if (protocolB2 == this.y) {
-                                    var result = chartData.filter(x => x.Protocol == "ProtocolB2").map(item => {
+                                    resultGraph = chartData.filter(x => x.Protocol == "ProtocolB2").map(item => {
                                         return new (
                                             item.Title,
                                             item.AssociateID,
                                             item.Protocol
                                         )
                                     });
-                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Protocol");
+                                    fileName = "ProtocolB2";
                                 }
 
                                 else if (protocolB3 == this.y) {
-                                    var result = chartData.filter(x => x.Protocol == "ProtocolB3").map(item => {
+                                    resultGraph = chartData.filter(x => x.Protocol == "ProtocolB3").map(item => {
                                         return new (
                                             item.Title,
                                             item.AssociateID,
                                             item.Protocol
                                         )
                                     });
-                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Protocol");
+                                    fileName = "ProtocolB3";
                                 }
 
                                 else if (protocolB4 == this.y) {
-                                    var result = chartData.filter(x => x.Protocol == "ProtocolB4").map(item => {
+                                    resultGraph = chartData.filter(x => x.Protocol == "ProtocolB4").map(item => {
                                         return new (
                                             item.Title,
                                             item.AssociateID,
                                             item.Protocol
                                         )
                                     });
-                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Protocol");
+                                    fileName = "ProtocolB4";
                                 }
 
                                 else if (protocolC1 == this.y) {
-                                    var result = chartData.filter(x => x.Protocol == "ProtocolC1").map(item => {
+                                    resultGraph = chartData.filter(x => x.Protocol == "ProtocolC1").map(item => {
                                         return new (
                                             item.Title,
                                             item.AssociateID,
                                             item.Protocol
                                         )
                                     });
-                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Protocol");
+                                    fileName = "ProtocolC1";
                                 }
 
                                 else if (protocolC2 == this.y) {
-                                    var result = chartData.filter(x => x.Protocol == "ProtocolC2").map(item => {
+                                    resultGraph = chartData.filter(x => x.Protocol == "ProtocolC2").map(item => {
                                         return new (
                                             item.Title,
                                             item.AssociateID,
                                             item.Protocol
                                         )
                                     });
-                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Protocol");
+                                    fileName = "ProtocolC2";
                                 }
 
                                 else if (protocolC3 == this.y) {
-                                    var result = chartData.filter(x => x.Protocol == "ProtocolC3").map(item => {
+                                    resultGraph = chartData.filter(x => x.Protocol == "ProtocolC3").map(item => {
                                         return new (
                                             item.Title,
                                             item.AssociateID,
                                             item.Protocol
                                         )
                                     });
-                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Protocol");
+                                    fileName = "ProtocolC3";
                                 }
 
                                 else if (protocolC4 == this.y) {
-                                    var result = chartData.filter(x => x.Protocol == "ProtocolC4").map(item => {
+                                    resultGraph = chartData.filter(x => x.Protocol == "ProtocolC4").map(item => {
                                         return new (
                                             item.Title,
                                             item.AssociateID,
                                             item.Protocol
                                         )
                                     });
-                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Protocol");
+                                    fileName = "ProtocolC4";
                                 }
 
                                 else if (protocolD == this.y) {
-                                    var result = chartData.filter(x => x.Protocol == "ProtocolD").map(item => {
+                                    resultGraph = chartData.filter(x => x.Protocol == "ProtocolD").map(item => {
                                         return new (
                                             item.Title,
                                             item.AssociateID,
                                             item.Protocol
                                         )
                                     });
-                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Protocol");
+                                    fileName = "ProtocolD";
                                 }
+
+                                var wb = { SheetNames: [], Sheets: {} };
+                                const worksheet1: XLSX.WorkSheet = XLSX.utils.json_to_sheet(resultGraph);
+                                wb.SheetNames.push(sheetName);
+                                wb.Sheets[sheetName] = worksheet1;
+                                const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                                const data: Blob = new Blob([excelBuffer], { type: EXCEL_TYPE });
+                                FileSaver.saveAs(data, fileName + '_export_' + EXCEL_EXTENSION);
                             }
                         }
                     }
