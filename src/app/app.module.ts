@@ -25,6 +25,7 @@ import { BcpAssociateTrackerComponent } from './bcp-associates-tracker/bcp-assoc
 import { GrdFilterPipe } from './bcp-associates-tracker/builder-filter-pipe';
 import { BcpDownloadService } from './providers/bcp-download.service';
 import { BcpAccountMasterService } from './providers/bcp-account-master.service';
+import { BcpGraphExportService } from './providers/bcp-graph-export.service';
 
 @NgModule({
   declarations: [
@@ -56,7 +57,8 @@ import { BcpAccountMasterService } from './providers/bcp-account-master.service'
     BcpChartService,
     BcpFileExportService,
     UserResolver,
-    GrdFilterPipe
+    GrdFilterPipe,
+    BcpGraphExportService
   ],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
