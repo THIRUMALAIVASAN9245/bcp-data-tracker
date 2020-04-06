@@ -33,6 +33,9 @@ export class BcpChartComponent implements OnInit {
     deviceType: any = [];
     accountCount: any;
     protocolData: any = [];
+    wfhData : any = [];
+    piiAccessData : any = [];
+    byodData: any = [];
 
     ngOnInit() {
         this.route.params.subscribe(params => { this.projectId = params["id"] });
@@ -80,22 +83,106 @@ export class BcpChartComponent implements OnInit {
     getChartData(chartData) {
         const uniqueUpdateDate = [...new Set(chartData.map(item => item.UpdateDate))];
 
-        this.getWFHReadiness(chartData, uniqueUpdateDate);
+        this.getWFHReadiness(chartData);
         this.getDeviceType(chartData, uniqueUpdateDate);
         this.getPersonalReason(chartData, uniqueUpdateDate);
         this.getProtocolType(chartData);
+        this.getPiiAcess(chartData);
+        this.getBYODCompliance(chartData);
     }
 
-    private getWFHReadiness(chartData, uniqueUpdateDate) {
-        var wfhRedinessYes = [];
-        var wfhRedinessNo = [];
-        uniqueUpdateDate.forEach((updateDate: any) => {
-            var uniqueYes = chartData.filter(item => item.UpdateDate == updateDate && item.CurrentEnabledforWFH == "Yes");
-            wfhRedinessYes.push({ date: updateDate, count: uniqueYes.length });
-            var uniqueNo = chartData.filter(item => item.UpdateDate == updateDate && item.CurrentEnabledforWFH == "No");
-            wfhRedinessNo.push({ date: updateDate, count: uniqueNo.length });
-        });
+    private getWFHReadiness(chartData) {
+        debugger;
+        var wfhRedinessYes;
+        var wfhRedinessNo;
+            var uniqueYes = chartData.filter(item => item.CurrentEnabledforWFH == "Yes");
+            uniqueYes.forEach(x=>{
+                this.wfhData.push({ProjectId:x.AccountId,AssociateId:x.AssociateID,CurrentEnabledforWFH:"Yes"});
+            });
+            var uniqueNo  = chartData.filter(item => item.CurrentEnabledforWFH == "No");
+            uniqueNo.forEach(x=>{
+                this.wfhData.push({ProjectId:x.AccountId,AssociateId:x.AssociateID,CurrentEnabledforWFH:"No"});
+            });
+            const uniqueNoCount = chartData.length - uniqueYes.length;
+            wfhRedinessYes=parseFloat(((uniqueYes.length/chartData.length)*100).toFixed(2));
+            wfhRedinessNo=parseFloat(((uniqueNoCount/chartData.length)*100).toFixed(2));
         this.workFromHomeGraph(wfhRedinessYes, wfhRedinessNo);
+    }
+
+    WFHReadinessExcelSheetData(){
+        console.log(this.wfhData);
+        if(this.wfhData.length>0){
+            var wb = { SheetNames: [], Sheets: {} };
+            const worksheet1: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.wfhData);
+            wb.SheetNames.push("WFHReadinessDetails");
+            wb.Sheets["WFHReadinessDetails"] = worksheet1;
+            const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            const data: Blob = new Blob([excelBuffer], { type: EXCEL_TYPE });
+            FileSaver.saveAs(data, 'WFHReadiness' + '_export_' + EXCEL_EXTENSION);
+
+        }
+    }
+   
+    private getPiiAcess(chartData) {
+        debugger
+        var PIIDataAccessYes ;
+        var PIIDataAccessNo ;
+            var uniqueYes = chartData.filter(item => item.PIIDataAccess == "Yes");
+            uniqueYes.forEach(x=>{
+                this.piiAccessData.push({ProjectId:x.AccountId,AssociateId:x.AssociateID,PIIDataAccess:"Yes"});
+            });
+            var uniqueNo = chartData.filter(item => item.PIIDataAccess == "No");
+            uniqueNo.forEach(x=>{
+                this.piiAccessData.push({ProjectId:x.AccountId,AssociateId:x.AssociateID,PIIDataAccess:"No"});
+            });
+            const uniqueNoCount = chartData.length - uniqueYes.length;
+            PIIDataAccessYes=parseFloat(((uniqueYes.length/chartData.length)*100).toFixed(2));
+            PIIDataAccessNo=parseFloat(((uniqueNoCount/chartData.length)*100).toFixed(2));
+        this.piiAccessGraph(PIIDataAccessYes, PIIDataAccessNo);
+    }
+
+    PiiAcessExcelSheetData(){
+        console.log(this.piiAccessData);
+        if(this.piiAccessData.length>0){
+            var wb = { SheetNames: [], Sheets: {} };
+            const worksheet1: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.piiAccessData);
+            wb.SheetNames.push("PIIDataAccessDetails");
+            wb.Sheets["PIIDataAccessDetails"] = worksheet1;
+            const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            const data: Blob = new Blob([excelBuffer], { type: EXCEL_TYPE });
+            FileSaver.saveAs(data, 'PIIDataAccess' + '_export_' + EXCEL_EXTENSION);
+        }
+    }
+
+    private getBYODCompliance(chartData) {
+        debugger
+        var BYODComplianceYes ;
+        var BYODComplianceNo ;
+            var uniqueYes = chartData.filter(item => item.BYODCompliance == "Yes");
+            uniqueYes.forEach(x=>{
+                this.byodData.push({ProjectId:x.AccountId,AssociateId:x.AssociateID,BYODCompliance:"Yes"});
+            });
+            var uniqueNo = chartData.filter(item => item.BYODCompliance == "NO");
+            uniqueNo.forEach(x=>{
+                this.byodData.push({ProjectId:x.AccountId,AssociateId:x.AssociateID,BYODCompliance:"No"});
+            });
+            const uniqueNoCount = chartData.length - uniqueYes.length;
+            BYODComplianceYes=parseFloat(((uniqueYes.length/chartData.length)*100).toFixed(2));
+            BYODComplianceNo=parseFloat(((uniqueNoCount/chartData.length)*100).toFixed(2));
+        this.BYODComplianceGraph(BYODComplianceYes, BYODComplianceNo);
+    }
+
+    BYODComplianceExcelSheetData(){
+        console.log(this.byodData);
+        if(this.byodData.length>0){
+            var wb = { SheetNames: [], Sheets: {} };
+            const worksheet1: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.byodData);
+            wb.SheetNames.push("BYODComplianceDetails");
+            wb.Sheets["BYODComplianceDetails"] = worksheet1;
+            const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            const data: Blob = new Blob([excelBuffer], { type: EXCEL_TYPE });
+            FileSaver.saveAs(data, 'BYODCompliance' + '_export_' + EXCEL_EXTENSION);
+        }
     }
 
     private getDeviceType(chartData, uniqueUpdateDate) {
@@ -369,54 +456,144 @@ export class BcpChartComponent implements OnInit {
         });
     }
 
-    workFromHomeGraph(wfhRedinessYes, wfhRedinessNo) {
-        var xaxis = [];
-        var yAxisDataYes = [];
-        var yAxisDataNo = [];
-        wfhRedinessYes.forEach(element => {
-            xaxis.push(element.date);
-            yAxisDataYes.push(element.count);
-        });
-        wfhRedinessNo.forEach(element => {
-            yAxisDataNo.push(element.count);
-        });
-        var Highcharts = require('highcharts');
-        require('highcharts/modules/exporting')(Highcharts);
-        Highcharts.chart('container2', {
+    piiAccessGraph(PIIDataAccessYes, PIIDataAccessNo){
+        var Highcharts =require('highcharts');  
+        require('highcharts/modules/exporting')(Highcharts); 
+        Highcharts.chart('container6', {
             chart: {
-                type: 'column'
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: false,
+                type: 'pie'
             },
             title: {
-                text: 'Work From Home'
+                text: 'PII Access'
             },
-            xAxis: {
-                categories: xaxis
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.y}%</b>'
             },
-            yAxis: {
-                title: {
-                    text: ' Count '
+            accessibility: {
+                point: {
+                    valueSuffix: '%'
                 }
-            }, credits: {
-                enabled: false
             },
             plotOptions: {
-                line: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
                     dataLabels: {
-                        enabled: true
-                    },
-                    enableMouseTracking: false
-                }
+                        enabled: true,
+                        format: '<b>{point.name}</b>: {point.y} %'
+                    }
+                },
             },
-            series: [{
-                name: 'Work From Home -yes',
-                data: yAxisDataYes
+          series: [{
+            name: 'PII Access',
+            colorByPoint: true,
+            data: [{
+                name: 'PII Access - yes',
+                y: PIIDataAccessYes,
+                sliced: true,
+                selected: true
             }, {
-                name: 'Work From Home -No',
-                data: yAxisDataNo
-            }
-            ]
+                name: 'PII Access - No',
+                y: PIIDataAccessNo
+            }]
+        }]
         });
-    }
+      }
+      workFromHomeGraph(wfhRedinessYes, wfhRedinessNo){
+          var Highcharts =require('highcharts');  
+          require('highcharts/modules/exporting')(Highcharts); 
+          Highcharts.chart('container2', {
+              chart: {
+                  plotBackgroundColor: null,
+                  plotBorderWidth: null,
+                  plotShadow: false,
+                  type: 'pie'
+              },
+              title: {
+                  text: 'Work From Home'
+              },
+              tooltip: {
+                  pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+              },
+              accessibility: {
+                  point: {
+                      valueSuffix: '%'
+                  }
+              },
+              plotOptions: {
+                  pie: {
+                      allowPointSelect: true,
+                      cursor: 'pointer',
+                      dataLabels: {
+                          enabled: true,
+                          format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+                      }
+                  }
+              },
+            series: [{
+              name: 'Work From Home',
+              colorByPoint: true,
+              data: [{
+                  name: 'WFH - yes',
+                  y: wfhRedinessYes,
+                  sliced: true,
+                  selected: true
+              }, {
+                  name: 'WFH - No',
+                  y: wfhRedinessNo
+              }]
+          }]
+          });
+        }
+        BYODComplianceGraph(BYODComplianceYes, BYODComplianceNo){
+          var Highcharts =require('highcharts');  
+          require('highcharts/modules/exporting')(Highcharts); 
+          Highcharts.chart('container7', {
+              chart: {
+                  plotBackgroundColor: null,
+                  plotBorderWidth: null,
+                  plotShadow: false,
+                  type: 'pie'
+              },
+              title: {
+                  text: 'BYODCompliance'
+              },
+              tooltip: {
+                  pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+              },
+              accessibility: {
+                  point: {
+                      valueSuffix: '%'
+                  }
+              },
+              plotOptions: {
+                  pie: {
+                      allowPointSelect: true,
+                      cursor: 'pointer',
+                      dataLabels: {
+                          enabled: true,
+                          format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+                      }
+                  }
+              },
+            series: [{
+              name: 'BYODCompliance',
+              colorByPoint: true,
+              data: [{
+                  name: 'BYODCompliance - yes',
+                  y: BYODComplianceYes,
+                  sliced: true,
+                  selected: true
+              }, {
+                  name: 'BYODCompliance - No',
+                  y: BYODComplianceNo
+              }]
+          }]
+          });
+        }
 
     personalLeaveExcelSheetData() {
         console.log(this.availableDate);
