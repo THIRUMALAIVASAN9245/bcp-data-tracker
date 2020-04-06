@@ -103,17 +103,29 @@ export class BcpChartComponent implements OnInit {
         var cognizantDevice = [];
         var customerDevice = [];
         var cognizantBYODs = [];
+        this.deviceType = [];
 
-        uniqueUpdateDate.forEach((updateDate: any) => {
-            var personaltemp = chartData.filter(item => item.UpdateDate == updateDate && item.WFHDeviceType == "Personal Device");
-            personalDevice.push({ date: updateDate, count: personaltemp.length });
-            var cognizantDevicetemp = chartData.filter(item => item.UpdateDate == updateDate && item.WFHDeviceType == "Cognizant Device");
-            cognizantDevice.push({ date: updateDate, count: cognizantDevicetemp.length });
-            var customerDevicetemp = chartData.filter(item => item.UpdateDate == updateDate && item.WFHDeviceType == "Customer Device");
-            customerDevice.push({ date: updateDate, count: customerDevicetemp.length });
-            var cognizantBOYDstemp = chartData.filter(item => item.UpdateDate == updateDate && item.WFHDeviceType == "Cognizant BYOD");
-            cognizantBYODs.push({ date: updateDate, count: cognizantBOYDstemp.length });
+        var personaltemp = chartData.filter(item => item.WFHDeviceType == "Personal Device");
+        personaltemp.forEach(x => {
+            this.deviceType.push({ AccountID: x.AccountId, AssociateId: x.AssociateID, DeviceType: x.WFHDeviceType });
         });
+        personalDevice.push({ count: personaltemp.length, data: personaltemp });
+        var cognizantDevicetemp = chartData.filter(item => item.WFHDeviceType == "Cognizant Device");
+        cognizantDevicetemp.forEach(x => {
+            this.deviceType.push({ AccountID: x.AccountId, AssociateId: x.AssociateID, DeviceType: x.WFHDeviceType });
+        });
+        cognizantDevice.push({ count: cognizantDevicetemp.length, data: personaltemp });
+        var customerDevicetemp = chartData.filter(item => item.WFHDeviceType == "Customer Device");
+        customerDevicetemp.forEach(x => {
+            this.deviceType.push({ AccountID: x.AccountId, AssociateId: x.AssociateID, DeviceType: x.WFHDeviceType });
+        });
+        customerDevice.push({ count: customerDevicetemp.length, data: personaltemp });
+        var cognizantBOYDstemp = chartData.filter(item => item.WFHDeviceType == "Cognizant BYOD");
+        cognizantBOYDstemp.forEach(x => {
+            this.deviceType.push({ AccountID: x.AccountId, AssociateId: x.AssociateID, DeviceType: x.WFHDeviceType });
+        });
+        console.log(this.deviceType);
+        cognizantBYODs.push({ count: cognizantBOYDstemp.length, data: personaltemp });
 
         this.deviceTypeGraph(personalDevice, cognizantDevice, customerDevice, cognizantBYODs);
     }
@@ -125,24 +137,41 @@ export class BcpChartComponent implements OnInit {
         var workingAtOffice = [];
         var connectivity = [];
         var covid19 = [];
+        // var currentDate = moment().format("DD-MM-YYYY");
 
-        uniqueUpdateDate.forEach((updateDate: any) => {
-            var nodevice = chartData.filter(item => item.UpdateDate == updateDate && item.PersonalReason == "No device");
-            noDevice.push({ date: updateDate, count: nodevice.length });
-            var unplanned = chartData.filter(item => item.UpdateDate == updateDate && item.PersonalReason == "unplanned leave");
-            unplannedLeave.push({ date: updateDate, count: unplanned.length });
-            var planned = chartData.filter(item => item.UpdateDate == updateDate && item.PersonalReason == "planned leave");
-            plannedLeave.push({ date: updateDate, count: planned.length });
-            var workAtOffice = chartData.filter(item => item.UpdateDate == updateDate && item.PersonalReason == "working at office");
-            workingAtOffice.push({ date: updateDate, count: workAtOffice.length });
-            var connect = chartData.filter(item => item.UpdateDate == updateDate && item.PersonalReason == "Connectivity");
-            connectivity.push({ date: updateDate, count: connect.length });
-            var covid = chartData.filter(item => item.UpdateDate == updateDate && item.PersonalReason == "COVID19");
-            covid19.push({ date: updateDate, count: covid.length });
+        var nodevice = chartData.filter(item => item.PersonalReason == "No device");
+        nodevice.forEach(x => {
+            this.availableDate.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, PersonalLeave: "No device" });
         });
+        noDevice.push({ count: nodevice.length, data: nodevice });
+        var unplanned = chartData.filter(item => item.PersonalReason == "unplanned leave");
+        unplanned.forEach(x => {
+            this.availableDate.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, PersonalLeave: "Unplanned leave" });
+        });
+        unplannedLeave.push({ count: unplanned.length, data: unplanned });
+        var planned = chartData.filter(item => item.PersonalReason == "planned leave");
+        planned.forEach(x => {
+            this.availableDate.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, PersonalLeave: "Planned leave" });
+        });
+        plannedLeave.push({ count: planned.length, data: planned });
+        var workAtOffice = chartData.filter(item => item.PersonalReason == "working at office");
+        workAtOffice.forEach(x => {
+            this.availableDate.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, PersonalLeave: "Working at office" });
+        });
+        workingAtOffice.push({ count: workAtOffice.length, data: workAtOffice });
+        var connect = chartData.filter(item => item.PersonalReason == "Connectivity");
+        connect.forEach(x => {
+            this.availableDate.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, PersonalLeave: "Connectivity" });
+        });
+        connectivity.push({ count: connect.length, data: connect });
+        var covid = chartData.filter(item => item.PersonalReason == "COVID19");
+        covid.forEach(x => {
+            this.availableDate.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, PersonalLeave: "COVID19" });
+        });
+        covid19.push({ count: covid.length, data: covid });
+
         this.personalReasonGraph(noDevice, unplannedLeave, plannedLeave, workingAtOffice, connectivity, covid19);
     }
-
     private getProtocolType(chartData) {
         var protocolA = chartData.filter(item => item.Protocol == "Protocol A");
 
@@ -208,14 +237,30 @@ export class BcpChartComponent implements OnInit {
             protocolB4.length, protocolC1.length, protocolC2.length, protocolC3.length, protocolC4.length, protocolD.length);
     }
 
+    exportContainer1() {
+        console.log(this.deviceType);
+        var result = this.deviceType.map(item => ({
+            AccountID: item.Title,
+            AssociateID: item.AssociateID,
+            DeviceType: item.WFHDeviceType
+        }));
+        var wb = { SheetNames: [], Sheets: {} };
+        const worksheet1: XLSX.WorkSheet = XLSX.utils.json_to_sheet(result);
+        wb.SheetNames.push("DeviceType");
+        wb.Sheets["DeviceType"] = worksheet1;
+        const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const data: Blob = new Blob([excelBuffer], { type: EXCEL_TYPE });
+        FileSaver.saveAs(data, 'Device' + '_export_' + EXCEL_EXTENSION);
+    }
+
     deviceTypeGraph(personalDevice, cognizantDevice, customerDevice, cognizantBYODs) {
-        var xaxis = [];
+        // // var xaxis = [];
         var Yaxis_personal = [];
         var Yaxis_cts = [];
         var Yaxis_cus = [];
         var Yaxis_byod = [];
         personalDevice.forEach(element => {
-            xaxis.push(element.date);
+            // // xaxis.push(element.date);
             Yaxis_personal.push(element.count);
         });
         cognizantDevice.forEach(element => {
@@ -238,7 +283,7 @@ export class BcpChartComponent implements OnInit {
                 text: 'Personal/Customer/Cognizant Device Availability'
             },
             xAxis: {
-                categories: xaxis
+                categories: ['Devices']
             },
             yAxis: {
                 title: {
@@ -249,6 +294,55 @@ export class BcpChartComponent implements OnInit {
                 enabled: false
             },
             plotOptions: {
+                series: {
+                    cursor: 'pointer',
+                    point: {
+                        events: {
+                            click: function () {
+                                alert('Device: ' + this.x + ', value: ' + this.y);
+                                console.log('Device: ' + this.category + ', value: ' + this.y + "Series name - " + this.series.name);
+                                console.log(this.deviceType);
+                                console.log("Series name - " + this.series.name);
+                                if (this.series.name == "Cognizant BYOD") {
+
+                                    var result = cognizantBYODs[0].data.map(item => ({
+                                        AccountID: item.Title,
+                                        AssociateID: item.AssociateID,
+                                        DeviceType: item.WFHDeviceType
+                                    }));
+                                    console.log('BYOD' + result);
+                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Device Availability");
+                                } else if (this.series.name == "Cognizant Device") {
+
+                                    var result = cognizantDevice[0].data.map(item => ({
+                                        AccountID: item.Title,
+                                        AssociateID: item.AssociateID,
+                                        DeviceType: item.WFHDeviceType
+                                    }));
+                                    console.log('Cognizant Device' + result);
+                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Device Availability");
+                                } else if (this.series.name == "Customer Device") {
+                                    console.log('Customer Device' + this.deviceType);
+                                    var result = customerDevice[0].data.map(item => ({
+                                        AccountID: item.Title,
+                                        AssociateID: item.AssociateID,
+                                        DeviceType: item.WFHDeviceType
+                                    }));
+                                    console.log('Customer Device' + result);
+                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Device Availability");
+                                } else if (this.series.name == "Personal Device") {
+                                    var result = personalDevice[0].data.map(item => ({
+                                        AccountID: item.Title,
+                                        AssociateID: item.AssociateID,
+                                        DeviceType: item.WFHDeviceType
+                                    }));
+                                    console.log('Personal Device' + result);
+                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Device Availability");
+                                }
+                            }
+                        }
+                    }
+                },
                 line: {
                     dataLabels: {
                         enabled: true
@@ -324,16 +418,33 @@ export class BcpChartComponent implements OnInit {
         });
     }
 
+    personalLeaveExcelSheetData() {
+        console.log(this.availableDate);
+        var result = this.availableDate.map(item => ({
+            AccountID: item.Title,
+            AssociateID: item.AssociateID,
+            PersonalLeave: item.PersonalLeave
+        }));
+        var wb = { SheetNames: [], Sheets: {} };
+        const worksheet1: XLSX.WorkSheet = XLSX.utils.json_to_sheet(result);
+        wb.SheetNames.push("PersonalReason");
+        wb.Sheets["PersonalReason"] = worksheet1;
+        const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const data: Blob = new Blob([excelBuffer], { type: EXCEL_TYPE });
+        FileSaver.saveAs(data, 'Personal' + '_export_' + EXCEL_EXTENSION);
+    }
+
     personalReasonGraph(noDevice, unplannedLeave, plannedLeave, workingAtOffice, connectivity, covid19) {
-        var xaxis = [];
+        // var xaxis = [];
         var noDeviceYaxis = [];
         var unplannedLeaveYaxis = [];
         var plannedLeaveYaxis = [];
         var workingAtOfficeYaxis = [];
         var connectivityYaxis = [];
         var covidYaxis = [];
+
         noDevice.forEach(element => {
-            xaxis.push(element.date);
+            // xaxis.push(element.date);
             noDeviceYaxis.push(element.count);
         });
         unplannedLeave.forEach(element => {
@@ -361,7 +472,7 @@ export class BcpChartComponent implements OnInit {
                 text: ' Personal Reason'
             },
             xAxis: {
-                categories: xaxis
+                categories: ['Reason']
             },
             yAxis: {
                 title: {
@@ -376,22 +487,91 @@ export class BcpChartComponent implements OnInit {
                         enabled: true
                     },
                     enableMouseTracking: false
+                },
+                series: {
+                    cursor: 'pointer',
+                    point: {
+                        events: {
+                            click: function (event) {
+                                if (this.series.name == "No device") {
+                                    console.log(noDevice[0].data);
+                                    var result = noDevice[0].data.map(item => ({
+                                        AccountID: item.Title,
+                                        AssociateID: item.AssociateID,
+                                        PersonalLeave: item.PersonalLeave
+                                    }));
+                                    console.log('Result1' + result);
+                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Personal Reason");
+                                }
+                                else if (this.series.name == "COVID19") {
+                                    console.log(covid19[0].data);
+                                    var result = covid19[0].data.map(item => ({
+                                        AccountID: item.Title,
+                                        AssociateID: item.AssociateID,
+                                        PersonalLeave: item.PersonalLeave
+                                    }));
+                                    console.log('Result1' + result);
+                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Personal Reason");
+                                }
+                                else if (this.series.name == "Unplanned leave") {
+                                    console.log(unplannedLeave[0].data);
+                                    var result = unplannedLeave[0].data.map(item => ({
+                                        AccountID: item.Title,
+                                        AssociateID: item.AssociateID,
+                                        PersonalLeave: item.PersonalLeave
+                                    }));
+                                    console.log('Result1' + result);
+                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Personal Reason");
+                                }
+                                else if (this.series.name == "Planned leave") {
+                                    console.log(plannedLeave[0].data);
+                                    var result = plannedLeave[0].data.map(item => ({
+                                        AccountID: item.Title,
+                                        AssociateID: item.AssociateID,
+                                        PersonalLeave: item.PersonalLeave
+                                    }));
+                                    console.log('Result1' + result);
+                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Personal Reason");
+                                }
+                                else if (this.series.name == "Working at office") {
+                                    console.log(workingAtOffice[0].data);
+                                    var result = workingAtOffice[0].data.map(item => ({
+                                        AccountID: item.Title,
+                                        AssociateID: item.AssociateID,
+                                        PersonalLeave: item.PersonalLeave
+                                    }));
+                                    console.log('Result1' + result);
+                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Personal Reason");
+                                }
+                                else if (this.series.name == "Connectivity") {
+                                    console.log(connectivity[0].data);
+                                    var result = connectivity[0].data.map(item => ({
+                                        AccountID: item.Title,
+                                        AssociateID: item.AssociateID,
+                                        PersonalLeave: item.PersonalLeave
+                                    }));
+                                    console.log('Result1' + result);
+                                    this.bcpGraphExportService.exportAsExcelFile(result, this.projectId, "Personal Reason");
+                                }
+                            }
+                        }
+                    }
                 }
             },
             series: [{
-                name: 'No Device',
+                name: 'No device',
                 data: noDeviceYaxis
             },
             {
-                name: 'Unplanned Leave',
+                name: 'Unplanned leave',
                 data: unplannedLeaveYaxis
             },
             {
-                name: 'Planned Leave',
+                name: 'Planned leave',
                 data: plannedLeaveYaxis
             },
             {
-                name: 'Working At Office',
+                name: 'Working at office',
                 data: workingAtOfficeYaxis
             },
             {
@@ -399,7 +579,7 @@ export class BcpChartComponent implements OnInit {
                 data: connectivityYaxis
             },
             {
-                name: 'Covid19',
+                name: 'COVID19',
                 data: covidYaxis
             }]
         });
