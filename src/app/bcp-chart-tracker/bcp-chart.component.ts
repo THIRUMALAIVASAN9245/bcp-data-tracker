@@ -6,7 +6,8 @@ import { BcpAssociateTrackerService } from '../providers/bcp-associates-tracker.
 import * as FileSaver from 'file-saver';
 import * as XLSX from 'xlsx';
 import * as moment from 'moment';
-import { BCPDetailsUpdate } from '../models/BCPDetailsUpdate';
+import { BCPDetailsGraph } from '../models/BCPDetailsGraph';
+import { UserDetail } from '../models/user-details';
 
 const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
 const EXCEL_EXTENSION = '.xlsx';
@@ -25,7 +26,6 @@ export class BcpChartComponent implements OnInit {
 
     keyword = 'name';
     projectId: any;
-    chartData: BCPDetailsUpdate[] = [];
     availableDate: any = [];
     attendanceData: any = [];
     TotalAttendanceDownloadData: any = [];
@@ -100,10 +100,34 @@ export class BcpChartComponent implements OnInit {
     }
 
     getBcpDetailsUpdateData(projectId) {
-        this.chartData = [];
         this.bcpChartService.getBCPDataTrackerHistory(projectId).subscribe(data => {
-            this.chartData = data.bcpDetailsUpdate;
-            this.getChartData(data.bcpDetailsUpdate);
+            this.bcpAssociateTrackerService.getBcpAssociateTracker(projectId).subscribe(model => {
+                let chartData = [];
+                data.bcpDetailsUpdate.forEach(bcpDetails => {
+                    var bcpUserDetail: UserDetail = model.userDetail.find(x => x.AssociateId === bcpDetails.AssociateID);
+                    if (bcpUserDetail != null) {                        
+                        var bcpModelDetails = new BCPDetailsGraph(
+                            bcpUserDetail.AccountID,
+                            bcpUserDetail.AccountName,
+                            bcpUserDetail.AssociateId,
+                            bcpUserDetail.AssociateName,
+                            bcpDetails.CurrentEnabledforWFH,
+                            bcpDetails.WFHDeviceType,
+                            bcpDetails.Comments,
+                            bcpDetails.IstheResourceProductivefromHome,
+                            bcpDetails.PersonalReason,
+                            bcpDetails.AssetId,
+                            bcpDetails.PIIDataAccess,
+                            bcpDetails.Protocol,
+                            bcpDetails.BYODCompliance,
+                            bcpDetails.Dongles,
+                            bcpDetails.UpdateDate,
+                            bcpDetails.UniqueId);
+                        chartData.push(bcpModelDetails);
+                    }
+                });
+                this.getChartData(chartData);
+            });
         });
         this.bcpChartService.getAccountAttendanceData(projectId).subscribe((response: BCPDailyUpdate[]) => {
             const uniqueUpdateDate = this.fillMissingDates([...new Set(response.map(item => item.UpdateDate))]);
@@ -118,9 +142,8 @@ export class BcpChartComponent implements OnInit {
         });
     }
 
-    getChartData(chartData) {
-        const uniqueUpdateDate = [...new Set(chartData.map(item => item.UpdateDate))];
-
+    getChartData(chartData: BCPDetailsGraph[]) {
+        console.log(chartData);
         this.getWFHReadiness(chartData);
         this.getDeviceType(chartData);
         this.getPersonalReason(chartData);
@@ -129,17 +152,17 @@ export class BcpChartComponent implements OnInit {
         this.getBYODCompliance(chartData);
     }
 
-    private getWFHReadiness(chartData) {
+    private getWFHReadiness(chartData: BCPDetailsGraph[]) {
         debugger;
         var wfhRedinessYes;
         var wfhRedinessNo;
-        var uniqueYes = chartData.filter(item => item.CurrentEnabledforWFH == "Yes");
+        var uniqueYes = chartData.filter((item: BCPDetailsGraph) => item.CurrentEnabledforWFH === "Yes");
         uniqueYes.forEach(x => {
-            this.wfhData.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, CurrentEnabledforWFH: "Yes" });
+            this.wfhData.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, CurrentEnabledforWFH: "Yes" });
         });
         var uniqueNo = chartData.filter(item => item.CurrentEnabledforWFH == "No");
         uniqueNo.forEach(x => {
-            this.wfhData.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, CurrentEnabledforWFH: "No" });
+            this.wfhData.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, CurrentEnabledforWFH: "No" });
         });
         const uniqueNoCount = chartData.length - uniqueYes.length;
         wfhRedinessYes = parseFloat(((uniqueYes.length / chartData.length) * 100).toFixed(2));
@@ -154,17 +177,17 @@ export class BcpChartComponent implements OnInit {
         }
     }
 
-    private getPiiAcess(chartData) {
+    private getPiiAcess(chartData: BCPDetailsGraph[]) {
         debugger
         var PIIDataAccessYes;
         var PIIDataAccessNo;
         var uniqueYes = chartData.filter(item => item.PIIDataAccess == "Yes");
         uniqueYes.forEach(x => {
-            this.piiAccessData.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, PIIDataAccess: "Yes" });
+            this.piiAccessData.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, PIIDataAccess: "Yes" });
         });
         var uniqueNo = chartData.filter(item => item.PIIDataAccess == "No");
         uniqueNo.forEach(x => {
-            this.piiAccessData.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, PIIDataAccess: "No" });
+            this.piiAccessData.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, PIIDataAccess: "No" });
         });
         const uniqueNoCount = chartData.length - uniqueYes.length;
         PIIDataAccessYes = parseFloat(((uniqueYes.length / chartData.length) * 100).toFixed(2));
@@ -180,17 +203,17 @@ export class BcpChartComponent implements OnInit {
         }
     }
 
-    private getBYODCompliance(chartData) {
+    private getBYODCompliance(chartData: BCPDetailsGraph[]) {
         debugger
         var BYODComplianceYes;
         var BYODComplianceNo;
         var uniqueYes = chartData.filter(item => item.BYODCompliance == "Yes");
         uniqueYes.forEach(x => {
-            this.byodData.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, BYODCompliance: "Yes" });
+            this.byodData.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, BYODCompliance: "Yes" });
         });
         var uniqueNo = chartData.filter(item => item.BYODCompliance == "No");
         uniqueNo.forEach(x => {
-            this.byodData.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, BYODCompliance: "No" });
+            this.byodData.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, BYODCompliance: "No" });
         });
         const uniqueNoCount = chartData.length - uniqueYes.length;
         BYODComplianceYes = parseFloat(((uniqueYes.length / chartData.length) * 100).toFixed(2));
@@ -205,7 +228,7 @@ export class BcpChartComponent implements OnInit {
         }
     }
 
-    private getDeviceType(chartData) {
+    private getDeviceType(chartData: BCPDetailsGraph[]) {
         var personalDevice = [];
         var cognizantDevice = [];
         var customerDevice = [];
@@ -214,30 +237,29 @@ export class BcpChartComponent implements OnInit {
 
         var personaltemp = chartData.filter(item => item.WFHDeviceType == "Personal Device");
         personaltemp.forEach(x => {
-            this.deviceType.push({ AccountID: x.AccountId, AssociateId: x.AssociateID, DeviceType: x.WFHDeviceType });
+            this.deviceType.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, DeviceType: x.WFHDeviceType });
         });
         personalDevice.push({ count: personaltemp.length, data: personaltemp });
         var cognizantDevicetemp = chartData.filter(item => item.WFHDeviceType == "Cognizant Device");
         cognizantDevicetemp.forEach(x => {
-            this.deviceType.push({ AccountID: x.AccountId, AssociateId: x.AssociateID, DeviceType: x.WFHDeviceType });
+            this.deviceType.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, DeviceType: x.WFHDeviceType });
         });
         cognizantDevice.push({ count: cognizantDevicetemp.length, data: personaltemp });
         var customerDevicetemp = chartData.filter(item => item.WFHDeviceType == "Customer Device");
         customerDevicetemp.forEach(x => {
-            this.deviceType.push({ AccountID: x.AccountId, AssociateId: x.AssociateID, DeviceType: x.WFHDeviceType });
+            this.deviceType.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, DeviceType: x.WFHDeviceType });
         });
         customerDevice.push({ count: customerDevicetemp.length, data: personaltemp });
         var cognizantBOYDstemp = chartData.filter(item => item.WFHDeviceType == "Cognizant BYOD");
         cognizantBOYDstemp.forEach(x => {
-            this.deviceType.push({ AccountID: x.AccountId, AssociateId: x.AssociateID, DeviceType: x.WFHDeviceType });
+            this.deviceType.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, DeviceType: x.WFHDeviceType });
         });
-        console.log(this.deviceType);
         cognizantBYODs.push({ count: cognizantBOYDstemp.length, data: personaltemp });
 
         this.deviceTypeGraph(personalDevice, cognizantDevice, customerDevice, cognizantBYODs);
     }
 
-    private getPersonalReason(chartData) {
+    private getPersonalReason(chartData: BCPDetailsGraph[]) {
         var noDevice = [];
         var unplannedLeave = [];
         var plannedLeave = [];
@@ -247,96 +269,97 @@ export class BcpChartComponent implements OnInit {
 
         var nodevice = chartData.filter(item => item.PersonalReason == "No device");
         nodevice.forEach(x => {
-            this.availableDate.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, PersonalLeave: "No device" });
+            this.availableDate.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, PersonalLeave: "No device" });
         });
         noDevice.push({ count: nodevice.length, data: nodevice });
         var unplanned = chartData.filter(item => item.PersonalReason == "unplanned leave");
         unplanned.forEach(x => {
-            this.availableDate.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, PersonalLeave: "Unplanned leave" });
+            this.availableDate.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, PersonalLeave: "Unplanned leave" });
         });
         unplannedLeave.push({ count: unplanned.length, data: unplanned });
         var planned = chartData.filter(item => item.PersonalReason == "planned leave");
         planned.forEach(x => {
-            this.availableDate.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, PersonalLeave: "Planned leave" });
+            this.availableDate.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, PersonalLeave: "Planned leave" });
         });
         plannedLeave.push({ count: planned.length, data: planned });
         var workAtOffice = chartData.filter(item => item.PersonalReason == "working at office");
         workAtOffice.forEach(x => {
-            this.availableDate.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, PersonalLeave: "Working at office" });
+            this.availableDate.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, PersonalLeave: "Working at office" });
         });
         workingAtOffice.push({ count: workAtOffice.length, data: workAtOffice });
         var connect = chartData.filter(item => item.PersonalReason == "Connectivity");
         connect.forEach(x => {
-            this.availableDate.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, PersonalLeave: "Connectivity" });
+            this.availableDate.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, PersonalLeave: "Connectivity" });
         });
         connectivity.push({ count: connect.length, data: connect });
         var covid = chartData.filter(item => item.PersonalReason == "COVID19");
         covid.forEach(x => {
-            this.availableDate.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, PersonalLeave: "COVID19" });
+            this.availableDate.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, PersonalLeave: "COVID19" });
         });
         covid19.push({ count: covid.length, data: covid });
 
         this.personalReasonGraph(noDevice, unplannedLeave, plannedLeave, workingAtOffice, connectivity, covid19);
     }
-    private getProtocolType(chartData) {
+
+    private getProtocolType(chartData: BCPDetailsGraph[]) {
         var protocolA = chartData.filter(item => item.Protocol == "Protocol A");
 
         protocolA.forEach(x => {
-            this.protocolData.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, Protocol: "Protocol A" });
+            this.protocolData.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, Protocol: "Protocol A" });
         });
 
         var protocolB1 = chartData.filter(item => item.Protocol == "Protocol B.1");
 
         protocolB1.forEach(x => {
-            this.protocolData.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, Protocol: "Protocol B.1" });
+            this.protocolData.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, Protocol: "Protocol B.1" });
         });
 
         var protocolB2 = chartData.filter(item => item.Protocol == "Protocol B.2");
 
         protocolB2.forEach(x => {
-            this.protocolData.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, Protocol: "Protocol B.2" });
+            this.protocolData.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, Protocol: "Protocol B.2" });
         });
 
         var protocolB3 = chartData.filter(item => item.Protocol == "Protocol B.3");
 
         protocolB3.forEach(x => {
-            this.protocolData.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, Protocol: "Protocol B.3" });
+            this.protocolData.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, Protocol: "Protocol B.3" });
         });
 
         var protocolB4 = chartData.filter(item => item.Protocol == "Protocol B.4");
 
         protocolB4.forEach(x => {
-            this.protocolData.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, Protocol: "Protocol B.4" });
+            this.protocolData.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, Protocol: "Protocol B.4" });
         });
 
         var protocolC1 = chartData.filter(item => item.Protocol == "Protocol C.1");
 
         protocolC1.forEach(x => {
-            this.protocolData.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, Protocol: "Protocol C.1" });
+            this.protocolData.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, Protocol: "Protocol C.1" });
         });
 
         var protocolC2 = chartData.filter(item => item.Protocol == "Protocol C.2");
 
         protocolC2.forEach(x => {
-            this.protocolData.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, Protocol: "Protocol C.2" });
+            this.protocolData.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, Protocol: "Protocol C.2" });
         });
 
         var protocolC3 = chartData.filter(item => item.Protocol == "Protocol C.3");
 
         protocolC3.forEach(x => {
-            this.protocolData.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, Protocol: "Protocol C.3" });
+            this.protocolData.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, Protocol: "Protocol C.3" });
         });
 
         var protocolC4 = chartData.filter(item => item.Protocol == "Protocol C.4");
 
         protocolC4.forEach(x => {
-            this.protocolData.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, Protocol: "Protocol C.4" });
+            this.protocolData.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, Protocol: "Protocol C.4" });
         });
 
         var protocolD = chartData.filter(item => item.Protocol == "Protocol D");
 
         protocolD.forEach(x => {
-            this.protocolData.push({ ProjectId: x.AccountId, AssociateId: x.AssociateID, Protocol: "Protocol D" });
+            this.protocolData.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, Protocol: "Protocol D" });
         });
 
         this.protocolGraph(chartData, protocolA.length, protocolB1.length, protocolB2.length, protocolB3.length,
@@ -391,53 +414,36 @@ export class BcpChartComponent implements OnInit {
                 enabled: false
             },
             plotOptions: {
-                series: {
-                    cursor: 'pointer',
-                    point: {
-                        events: {
-                            click: function () {
-                                if (this.series.name == "Cognizant BYOD") {
+                // series: {
+                //     cursor: 'pointer',
+                //     point: {
+                //         events: {
+                //             click: function () {
+                //                 if (this.series.name == "Cognizant BYOD") {
+                //                     resultGraph = cognizantBYODs[0].data;
+                //                     fileName = "BYOD";
+                //                 } else if (this.series.name == "Cognizant Device") {
 
-                                    resultGraph = cognizantBYODs[0].data.map(item => ({
-                                        AccountID: item.Title,
-                                        AssociateID: item.AssociateID,
-                                        DeviceType: item.WFHDeviceType
-                                    }));
-                                    fileName = "BYOD";
-                                } else if (this.series.name == "Cognizant Device") {
-
-                                    resultGraph = cognizantDevice[0].data.map(item => ({
-                                        AccountID: item.Title,
-                                        AssociateID: item.AssociateID,
-                                        DeviceType: item.WFHDeviceType
-                                    }));
-                                    fileName = "Cognizant";
-                                } else if (this.series.name == "Customer Device") {
-                                    resultGraph = customerDevice[0].data.map(item => ({
-                                        AccountID: item.Title,
-                                        AssociateID: item.AssociateID,
-                                        DeviceType: item.WFHDeviceType
-                                    }));
-                                    fileName = "Customer";
-                                } else if (this.series.name == "Personal Device") {
-                                    resultGraph = personalDevice[0].data.map(item => ({
-                                        AccountID: item.Title,
-                                        AssociateID: item.AssociateID,
-                                        DeviceType: item.WFHDeviceType
-                                    }));
-                                    fileName = "Personal";
-                                }
-                                var wb = { SheetNames: [], Sheets: {} };
-                                const worksheet1: XLSX.WorkSheet = XLSX.utils.json_to_sheet(resultGraph);
-                                wb.SheetNames.push(sheetName);
-                                wb.Sheets[sheetName] = worksheet1;
-                                const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-                                const data: Blob = new Blob([excelBuffer], { type: EXCEL_TYPE });
-                                FileSaver.saveAs(data, fileName + '_export_' + EXCEL_EXTENSION);
-                            }
-                        }
-                    }
-                },
+                //                     resultGraph = cognizantDevice[0].data;
+                //                     fileName = "Cognizant";
+                //                 } else if (this.series.name == "Customer Device") {
+                //                     resultGraph = customerDevice[0].data;
+                //                     fileName = "Customer";
+                //                 } else if (this.series.name == "Personal Device") {
+                //                     resultGraph = personalDevice[0].data;
+                //                     fileName = "Personal";
+                //                 }
+                //                 var wb = { SheetNames: [], Sheets: {} };
+                //                 const worksheet1: XLSX.WorkSheet = XLSX.utils.json_to_sheet(resultGraph);
+                //                 wb.SheetNames.push(sheetName);
+                //                 wb.Sheets[sheetName] = worksheet1;
+                //                 const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                //                 const data: Blob = new Blob([excelBuffer], { type: EXCEL_TYPE });
+                //                 FileSaver.saveAs(data, fileName + '_export_' + EXCEL_EXTENSION);
+                //             }
+                //         }
+                //     }
+                // },
                 line: {
                     dataLabels: {
                         enabled: true
@@ -485,6 +491,9 @@ export class BcpChartComponent implements OnInit {
                     valueSuffix: '%'
                 }
             },
+            credits: {
+                enabled: false
+            },
             plotOptions: {
                 pie: {
                     allowPointSelect: true,
@@ -531,6 +540,9 @@ export class BcpChartComponent implements OnInit {
                     valueSuffix: '%'
                 }
             },
+            credits: {
+                enabled: false
+            },
             plotOptions: {
                 pie: {
                     allowPointSelect: true,
@@ -576,6 +588,9 @@ export class BcpChartComponent implements OnInit {
                 point: {
                     valueSuffix: '%'
                 }
+            },
+            credits: {
+                enabled: false
             },
             plotOptions: {
                 pie: {
@@ -654,7 +669,8 @@ export class BcpChartComponent implements OnInit {
                 title: {
                     text: ' Count '
                 }
-            }, credits: {
+            },
+            credits: {
                 enabled: false
             },
             plotOptions: {
@@ -664,71 +680,47 @@ export class BcpChartComponent implements OnInit {
                     },
                     enableMouseTracking: false
                 },
-                series: {
-                    cursor: 'pointer',
-                    point: {
-                        events: {
-                            click: function (event) {
-                                if (this.series.name == "No device") {
-                                    resultGraph = noDevice[0].data.map(item => ({
-                                        AccountID: item.Title,
-                                        AssociateID: item.AssociateID,
-                                        PersonalLeave: item.PersonalLeave
-                                    }));
-                                    fileName = "Nodevice";
-                                }
-                                else if (this.series.name == "COVID19") {
-                                    resultGraph = covid19[0].data.map(item => ({
-                                        AccountID: item.Title,
-                                        AssociateID: item.AssociateID,
-                                        PersonalLeave: item.PersonalLeave
-                                    }));
-                                    fileName = "COVID19";
-                                }
-                                else if (this.series.name == "Unplanned leave") {
-                                    resultGraph = unplannedLeave[0].data.map(item => ({
-                                        AccountID: item.Title,
-                                        AssociateID: item.AssociateID,
-                                        PersonalLeave: item.PersonalLeave
-                                    }));
-                                    fileName = "Unplanned";
-                                }
-                                else if (this.series.name == "Planned leave") {
-                                    resultGraph = plannedLeave[0].data.map(item => ({
-                                        AccountID: item.Title,
-                                        AssociateID: item.AssociateID,
-                                        PersonalLeave: item.PersonalLeave
-                                    }));
-                                    fileName = "Planned";
-                                }
-                                else if (this.series.name == "Working at office") {
-                                    resultGraph = workingAtOffice[0].data.map(item => ({
-                                        AccountID: item.Title,
-                                        AssociateID: item.AssociateID,
-                                        PersonalLeave: item.PersonalLeave
-                                    }));
-                                    fileName = "WAO";
-                                }
-                                else if (this.series.name == "Connectivity") {
-                                    resultGraph = connectivity[0].data.map(item => ({
-                                        AccountID: item.Title,
-                                        AssociateID: item.AssociateID,
-                                        PersonalLeave: item.PersonalLeave
-                                    }));
-                                    fileName = "Connectivity";
-                                }
+                // series: {
+                //     cursor: 'pointer',
+                //     point: {
+                //         events: {
+                //             click: function (event) {
+                //                 if (this.series.name == "No device") {
+                //                     resultGraph = noDevice[0].data;
+                //                     fileName = "Nodevice";
+                //                 }
+                //                 else if (this.series.name == "COVID19") {
+                //                     resultGraph = covid19[0].data;
+                //                     fileName = "COVID19";
+                //                 }
+                //                 else if (this.series.name == "Unplanned leave") {
+                //                     resultGraph = unplannedLeave[0].data;
+                //                     fileName = "Unplanned";
+                //                 }
+                //                 else if (this.series.name == "Planned leave") {
+                //                     resultGraph = plannedLeave[0].data;
+                //                     fileName = "Planned";
+                //                 }
+                //                 else if (this.series.name == "Working at office") {
+                //                     resultGraph = workingAtOffice[0].data;
+                //                     fileName = "WAO";
+                //                 }
+                //                 else if (this.series.name == "Connectivity") {
+                //                     resultGraph = connectivity[0].data;
+                //                     fileName = "Connectivity";
+                //                 }
 
-                                var wb = { SheetNames: [], Sheets: {} };
-                                const worksheet1: XLSX.WorkSheet = XLSX.utils.json_to_sheet(resultGraph);
-                                wb.SheetNames.push(sheetName);
-                                wb.Sheets[sheetName] = worksheet1;
-                                const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-                                const data: Blob = new Blob([excelBuffer], { type: EXCEL_TYPE });
-                                FileSaver.saveAs(data, fileName + '_export_' + EXCEL_EXTENSION);
-                            }
-                        }
-                    }
-                }
+                //                 var wb = { SheetNames: [], Sheets: {} };
+                //                 const worksheet1: XLSX.WorkSheet = XLSX.utils.json_to_sheet(resultGraph);
+                //                 wb.SheetNames.push(sheetName);
+                //                 wb.Sheets[sheetName] = worksheet1;
+                //                 const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                //                 const data: Blob = new Blob([excelBuffer], { type: EXCEL_TYPE });
+                //                 FileSaver.saveAs(data, fileName + '_export_' + EXCEL_EXTENSION);
+                //             }
+                //         }
+                //     }
+                // }
             },
             series: [{
                 name: 'No device',
@@ -780,19 +772,20 @@ export class BcpChartComponent implements OnInit {
                 title: {
                     text: ' Percentage '
                 }
-            }, credits: {
+            },
+            credits: {
                 enabled: false
             },
             plotOptions: {
-                series: {
-                    point: {
-                        events: {
-                            click: (currentValue) => {
-                                this.attendanceDownloadByDate(currentValue.point.category);
-                            }
-                        }
-                    }
-                }
+                // series: {
+                //     point: {
+                //         events: {
+                //             click: (currentValue) => {
+                //                 this.attendanceDownloadByDate(currentValue.point.category);
+                //             }
+                //         }
+                //     }
+                // }
             },
             series: [{
                 name: 'Attendance',
@@ -879,166 +872,109 @@ export class BcpChartComponent implements OnInit {
                     text: 'Count'
                 }
             },
+            credits: {
+                enabled: false
+            },
             plotOptions: {
-                series: {
-                    cursor: 'pointer',
-                    point: {
-                        events: {
-                            click: function () {
-                                var protocol;
-                                if (this.x == '0') {
-                                    protocol = "A";
-                                }
-                                else if (this.x == '1') {
-                                    protocol = "B1";
-                                }
-                                else if (this.x == '2') {
-                                    protocol = "B2";
-                                }
-                                else if (this.x == '3') {
-                                    protocol = "B3";
-                                }
-                                else if (this.x == '4') {
-                                    protocol = "B4";
-                                }
-                                else if (this.x == '5') {
-                                    protocol = "C1";
-                                }
-                                else if (this.x == '6') {
-                                    protocol = "C2";
-                                }
-                                else if (this.x == '7') {
-                                    protocol = "C3";
-                                }
-                                else if (this.x == '8') {
-                                    protocol = "C4";
-                                }
-                                else if (this.x == '9') {
-                                    protocol = "D";
-                                }
+                // series: {
+                //     cursor: 'pointer',
+                //     point: {
+                //         events: {
+                //             click: function () {
+                //                 var protocol;
+                //                 if (this.x == '0') {
+                //                     protocol = "A";
+                //                 }
+                //                 else if (this.x == '1') {
+                //                     protocol = "B1";
+                //                 }
+                //                 else if (this.x == '2') {
+                //                     protocol = "B2";
+                //                 }
+                //                 else if (this.x == '3') {
+                //                     protocol = "B3";
+                //                 }
+                //                 else if (this.x == '4') {
+                //                     protocol = "B4";
+                //                 }
+                //                 else if (this.x == '5') {
+                //                     protocol = "C1";
+                //                 }
+                //                 else if (this.x == '6') {
+                //                     protocol = "C2";
+                //                 }
+                //                 else if (this.x == '7') {
+                //                     protocol = "C3";
+                //                 }
+                //                 else if (this.x == '8') {
+                //                     protocol = "C4";
+                //                 }
+                //                 else if (this.x == '9') {
+                //                     protocol = "D";
+                //                 }
 
 
-                                if (protocolA == this.y) {
-                                    resultGraph = chartData.filter(x => x.Protocol == "ProtocolA").map(item => {
-                                        return new (
-                                            item.Title,
-                                            item.AssociateID,
-                                            item.Protocol
-                                        )
-                                    });
-                                    fileName = "ProtocolA";
-                                }
+                //                 if (protocolA == this.y) {
+                //                     resultGraph = chartData.filter(x => x.Protocol == "ProtocolA");
+                //                     fileName = "ProtocolA";
+                //                 }
 
-                                else if (protocolB1 == this.y) {
-                                    resultGraph = chartData.filter(x => x.Protocol == "ProtocolB1").map(item => {
-                                        return new (
-                                            item.Title,
-                                            item.AssociateID,
-                                            item.Protocol
-                                        )
-                                    });
-                                    fileName = "ProtocolB1";
-                                }
+                //                 else if (protocolB1 == this.y) {
+                //                     resultGraph = chartData.filter(x => x.Protocol == "ProtocolB1");
+                //                     fileName = "ProtocolB1";
+                //                 }
 
-                                else if (protocolB2 == this.y) {
-                                    resultGraph = chartData.filter(x => x.Protocol == "ProtocolB2").map(item => {
-                                        return new (
-                                            item.Title,
-                                            item.AssociateID,
-                                            item.Protocol
-                                        )
-                                    });
-                                    fileName = "ProtocolB2";
-                                }
+                //                 else if (protocolB2 == this.y) {
+                //                     resultGraph = chartData.filter(x => x.Protocol == "ProtocolB2");
+                //                     fileName = "ProtocolB2";
+                //                 }
 
-                                else if (protocolB3 == this.y) {
-                                    resultGraph = chartData.filter(x => x.Protocol == "ProtocolB3").map(item => {
-                                        return new (
-                                            item.Title,
-                                            item.AssociateID,
-                                            item.Protocol
-                                        )
-                                    });
-                                    fileName = "ProtocolB3";
-                                }
+                //                 else if (protocolB3 == this.y) {
+                //                     resultGraph = chartData.filter(x => x.Protocol == "ProtocolB3");
+                //                     fileName = "ProtocolB3";
+                //                 }
 
-                                else if (protocolB4 == this.y) {
-                                    resultGraph = chartData.filter(x => x.Protocol == "ProtocolB4").map(item => {
-                                        return new (
-                                            item.Title,
-                                            item.AssociateID,
-                                            item.Protocol
-                                        )
-                                    });
-                                    fileName = "ProtocolB4";
-                                }
+                //                 else if (protocolB4 == this.y) {
+                //                     resultGraph = chartData.filter(x => x.Protocol == "ProtocolB4");
+                //                     fileName = "ProtocolB4";
+                //                 }
 
-                                else if (protocolC1 == this.y) {
-                                    resultGraph = chartData.filter(x => x.Protocol == "ProtocolC1").map(item => {
-                                        return new (
-                                            item.Title,
-                                            item.AssociateID,
-                                            item.Protocol
-                                        )
-                                    });
-                                    fileName = "ProtocolC1";
-                                }
+                //                 else if (protocolC1 == this.y) {
+                //                     resultGraph = chartData.filter(x => x.Protocol == "ProtocolC1");
+                //                     fileName = "ProtocolC1";
+                //                 }
 
-                                else if (protocolC2 == this.y) {
-                                    resultGraph = chartData.filter(x => x.Protocol == "ProtocolC2").map(item => {
-                                        return new (
-                                            item.Title,
-                                            item.AssociateID,
-                                            item.Protocol
-                                        )
-                                    });
-                                    fileName = "ProtocolC2";
-                                }
+                //                 else if (protocolC2 == this.y) {
+                //                     resultGraph = chartData.filter(x => x.Protocol == "ProtocolC2");
+                //                     fileName = "ProtocolC2";
+                //                 }
 
-                                else if (protocolC3 == this.y) {
-                                    resultGraph = chartData.filter(x => x.Protocol == "ProtocolC3").map(item => {
-                                        return new (
-                                            item.Title,
-                                            item.AssociateID,
-                                            item.Protocol
-                                        )
-                                    });
-                                    fileName = "ProtocolC3";
-                                }
+                //                 else if (protocolC3 == this.y) {
+                //                     resultGraph = chartData.filter(x => x.Protocol == "ProtocolC3");
+                //                     fileName = "ProtocolC3";
+                //                 }
 
-                                else if (protocolC4 == this.y) {
-                                    resultGraph = chartData.filter(x => x.Protocol == "ProtocolC4").map(item => {
-                                        return new (
-                                            item.Title,
-                                            item.AssociateID,
-                                            item.Protocol
-                                        )
-                                    });
-                                    fileName = "ProtocolC4";
-                                }
+                //                 else if (protocolC4 == this.y) {
+                //                     resultGraph = chartData.filter(x => x.Protocol == "ProtocolC4");
+                //                     fileName = "ProtocolC4";
+                //                 }
 
-                                else if (protocolD == this.y) {
-                                    resultGraph = chartData.filter(x => x.Protocol == "ProtocolD").map(item => {
-                                        return new (
-                                            item.Title,
-                                            item.AssociateID,
-                                            item.Protocol
-                                        )
-                                    });
-                                    fileName = "ProtocolD";
-                                }
+                //                 else if (protocolD == this.y) {
+                //                     resultGraph = chartData.filter(x => x.Protocol == "ProtocolD");
+                //                     fileName = "ProtocolD";
+                //                 }
 
-                                var wb = { SheetNames: [], Sheets: {} };
-                                const worksheet1: XLSX.WorkSheet = XLSX.utils.json_to_sheet(resultGraph);
-                                wb.SheetNames.push(sheetName);
-                                wb.Sheets[sheetName] = worksheet1;
-                                const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-                                const data: Blob = new Blob([excelBuffer], { type: EXCEL_TYPE });
-                                FileSaver.saveAs(data, fileName + '_export_' + EXCEL_EXTENSION);
-                            }
-                        }
-                    }
-                },
+                //                 var wb = { SheetNames: [], Sheets: {} };
+                //                 const worksheet1: XLSX.WorkSheet = XLSX.utils.json_to_sheet(resultGraph);
+                //                 wb.SheetNames.push(sheetName);
+                //                 wb.Sheets[sheetName] = worksheet1;
+                //                 const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                //                 const data: Blob = new Blob([excelBuffer], { type: EXCEL_TYPE });
+                //                 FileSaver.saveAs(data, fileName + '_export_' + EXCEL_EXTENSION);
+                //             }
+                //         }
+                //     }
+                // },
                 line: {
                     dataLabels: {
                         enabled: true
