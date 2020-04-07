@@ -5,6 +5,7 @@ import { BCPDailyUpdate } from '../models/BCPDailyUpdate';
 import { BcpAssociateTrackerService } from '../providers/bcp-associates-tracker.service';
 import * as FileSaver from 'file-saver';
 import * as XLSX from 'xlsx';
+import * as moment from 'moment';
 import { BCPDetailsUpdate } from '../models/BCPDetailsUpdate';
 
 const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
@@ -63,6 +64,38 @@ export class BcpChartComponent implements OnInit {
         this.router.navigate(['/bcm-user-tracker', this.projectId]);
     }
 
+    stringToDate(dateString: string) {
+        var dateParts = dateString.split('-');
+        return new Date(parseInt(dateParts[2]), parseInt(dateParts[1]) - 1, parseInt(dateParts[0]));
+    }
+
+    fillMissingDates(actualDatesinDb:any[]) {
+        let datesAfterInsertingHolidays = [];
+
+        for(let i = 0; i < actualDatesinDb.length-1; i++) {
+            var start = moment(this.stringToDate(actualDatesinDb[i]));
+            var end = moment(this.stringToDate(actualDatesinDb[i+1]));
+            var diff = Math.abs(end.diff(start, 'days'));
+            if(diff > 1) {
+                if (new Date(start.toLocaleString()).getDay() !== 6 && new Date(start.toLocaleString()).getDay() !== 0) {
+                    datesAfterInsertingHolidays.push(start.format("DD-MM-YYYY"));
+            	}
+                 for(let j = 1;j<=diff;j++) {
+                     var missingDate = moment(start, "DD-MM-YYYY").add('days', j).toLocaleString();
+                     if (new Date(missingDate).getDay() !== 6 && new Date(missingDate).getDay() !== 0) {
+                        datesAfterInsertingHolidays.push(moment(new Date(missingDate)).format("DD-MM-YYYY"));
+                    }    
+                    diff--;
+                 } 
+            } else {
+                if (new Date(start.toLocaleString()).getDay() !== 6 && new Date(start.toLocaleString()).getDay() !== 0) {
+                    datesAfterInsertingHolidays.push(start.format("DD-MM-YYYY"));
+            	}
+            }
+        }    
+        return datesAfterInsertingHolidays;
+    }
+
     getBcpDetailsUpdateData(projectId) {
         this.chartData = [];
         this.bcpChartService.getBCPDataTrackerHistory(projectId).subscribe(data => {
@@ -70,7 +103,7 @@ export class BcpChartComponent implements OnInit {
             this.getChartData(data.bcpDetailsUpdate);
         });
         this.bcpChartService.getAccountAttendanceData(projectId).subscribe((response: BCPDailyUpdate[]) => {
-            const uniqueUpdateDate = [...new Set(response.map(item => item.UpdateDate))];
+            const uniqueUpdateDate = this.fillMissingDates([...new Set(response.map(item => item.UpdateDate))]);
             uniqueUpdateDate.forEach((updateDate: any) => {
                 const uniqueYes = response.filter(item => item.UpdateDate == updateDate && item.Attendance == "No");
                 const uniqueYesCount = this.accountCount - uniqueYes.length;
@@ -776,7 +809,7 @@ export class BcpChartComponent implements OnInit {
                 if (specificDate) {
                     uniqueUpdateDate = [specificDate];
                 } else {
-                    uniqueUpdateDate = [...new Set(response.map(item => item.UpdateDate))];
+                    uniqueUpdateDate = this.fillMissingDates([...new Set(response.map(item => item.UpdateDate))]);
                 }
                 uniqueUpdateDate.forEach(selectedDate => {
                     let membersAbsentOnSelectedDate = response.filter(item => item.UpdateDate == selectedDate && item.Attendance == "No");
