@@ -92,7 +92,10 @@ export class BcpChartComponent implements OnInit {
                     datesAfterInsertingHolidays.push(start.format("DD-MM-YYYY"));
             	}
             }
-        }    
+        }
+        if(!datesAfterInsertingHolidays.includes(this.stringToDate(moment().format("DD-MM-YYYY")))){
+            datesAfterInsertingHolidays.push(moment().format("DD-MM-YYYY"));
+        }
         return datesAfterInsertingHolidays;
     }
 
