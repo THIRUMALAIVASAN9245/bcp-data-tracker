@@ -246,20 +246,22 @@ export class BcpDownloadService {
                     });
                 }
                 else {
-                    var absenties = noAttendance[initialDateString].map(a => a.AssociateID);
+                    if (associateDetails.length != noAttendance[initialDateString].length) {
+                        var absenties = noAttendance[initialDateString].map(a => a.AssociateID);
 
-                    var filteredData = associateDetails.filter(atten => !absenties.includes(atten.AssociateID));
-                    filteredData.forEach(element => {
-                        var attendanceForAll = new BCPDailyUpdate(
-                            element.AccountID,
-                            element.AssociateID,
-                            "Yes",
-                            initialDateString
-                        );
-                        dailyAttendanceDetails.push(attendanceForAll);
-                    });
+                        var filteredData = associateDetails.filter(atten => !absenties.includes(atten.AssociateID));
+                        filteredData.forEach(element => {
+                            var attendanceForAll = new BCPDailyUpdate(
+                                element.AccountID,
+                                element.AssociateID,
+                                "Yes",
+                                initialDateString
+                            );
+                            dailyAttendanceDetails.push(attendanceForAll);
+                        });
 
-                    dailyAttendanceDetails.push(...noAttendance[initialDateString]);
+                        dailyAttendanceDetails.push(...noAttendance[initialDateString]);
+                    }
                 }
             }
 
