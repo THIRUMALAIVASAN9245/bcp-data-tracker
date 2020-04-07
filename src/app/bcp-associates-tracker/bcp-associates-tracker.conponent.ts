@@ -110,7 +110,9 @@ export class BcpAssociateTrackerComponent {
       WFHDeviceType: bcpDetailsDisplay.CurrentEnabledforWFH == "Yes" ? bcpDetailsDisplay.WFHDeviceType : "",
       Comments: bcpDetailsDisplay.Comments,
       PersonalReason: bcpDetailsDisplay.CurrentEnabledforWFH == "No" ? bcpDetailsDisplay.PersonalReason : "",
-      AssetId: bcpDetailsDisplay.CurrentEnabledforWFH == "Yes" && (bcpDetailsDisplay.WFHDeviceType == "Cognizant Device" || bcpDetailsDisplay.WFHDeviceType == "Customer Device") ? bcpDetailsDisplay.AssetId : "",
+      AssetId: bcpDetailsDisplay.CurrentEnabledforWFH == "Yes" && 
+        (bcpDetailsDisplay.WFHDeviceType == "Cognizant Device" || bcpDetailsDisplay.WFHDeviceType == "Customer Device"
+          || bcpDetailsDisplay.WFHDeviceType == "Cognizant BYOD") ? bcpDetailsDisplay.AssetId : "",
       PIIDataAccess: bcpDetailsDisplay.PIIDataAccess,
       Protocol: bcpDetailsDisplay.Protocol,
       BYODCompliance: bcpDetailsDisplay.BYODCompliance,

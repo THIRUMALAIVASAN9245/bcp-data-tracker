@@ -83,7 +83,7 @@ export class BcpDownloadService {
             apiURLMaster += "Location eq '" + filters.location + "' and ";
         }
 
-        return apiURLMaster += "AccountID eq " + filters.projectId + "and isDeleted eq 0&$top=" + this.recordsToReturn;
+        return apiURLMaster += "AccountID eq " + filters.projectId + "&$top=" + this.recordsToReturn;
     }
 
     loopURL(api: string, httpCallCount: number) {
@@ -125,7 +125,7 @@ export class BcpDownloadService {
             for (var index = 0; index < masterDataCount; index++) {
                 allMasterDetail.push(...response[index].value);
             }
-            allMasterDetail = allMasterDetail.filter(x => x.isDeleted == 0);
+            // // allMasterDetail = allMasterDetail.filter(x => x.isDeleted == 0);
             const getMasterDetails = allMasterDetail.map(item => {
                 return new UserDetail(
                     item.Title,
@@ -160,7 +160,7 @@ export class BcpDownloadService {
             for (var index = masterDataCount; index < masterDataCount + masterDataCount; index++) {
                 dataTracker.push(...response[index].value);
             }
-            dataTracker = dataTracker.filter(x => x.IsDeleted == 0);
+            // // dataTracker = dataTracker.filter(x => x.IsDeleted == 0);
             const getUpdate = dataTracker.map(item => {
                 return new BCPDetailsUpdate(
                     item.AccountID,
@@ -301,7 +301,7 @@ export class BcpDownloadService {
             latestRecord ? latestRecord.PIIDataAccess : "",
             latestRecord ? latestRecord.Protocol : "",
             latestRecord ? latestRecord.BYODCompliance : "",
-            latestRecord ? latestRecord.Dongles : "");
+            latestRecord ? latestRecord.Dongle : "");
     }
 
     attendanceDetailsSheet(getAddten: any) {
