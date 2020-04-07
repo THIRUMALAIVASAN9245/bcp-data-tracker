@@ -69,31 +69,31 @@ export class BcpChartComponent implements OnInit {
         return new Date(parseInt(dateParts[2]), parseInt(dateParts[1]) - 1, parseInt(dateParts[0]));
     }
 
-    fillMissingDates(actualDatesinDb:any[]) {
+    fillMissingDates(actualDatesinDb: any[]) {
         let datesAfterInsertingHolidays = [];
 
-        for(let i = 0; i < actualDatesinDb.length-1; i++) {
+        for (let i = 0; i < actualDatesinDb.length - 1; i++) {
             var start = moment(this.stringToDate(actualDatesinDb[i]));
-            var end = moment(this.stringToDate(actualDatesinDb[i+1]));
+            var end = moment(this.stringToDate(actualDatesinDb[i + 1]));
             var diff = Math.abs(end.diff(start, 'days'));
-            if(diff > 1) {
+            if (diff > 1) {
                 if (new Date(start.toLocaleString()).getDay() !== 6 && new Date(start.toLocaleString()).getDay() !== 0) {
                     datesAfterInsertingHolidays.push(start.format("DD-MM-YYYY"));
-            	}
-                 for(let j = 1;j<=diff;j++) {
-                     var missingDate = moment(start, "DD-MM-YYYY").add('days', j).toLocaleString();
-                     if (new Date(missingDate).getDay() !== 6 && new Date(missingDate).getDay() !== 0) {
+                }
+                for (let j = 1; j <= diff; j++) {
+                    var missingDate = moment(start, "DD-MM-YYYY").add('days', j).toLocaleString();
+                    if (new Date(missingDate).getDay() !== 6 && new Date(missingDate).getDay() !== 0) {
                         datesAfterInsertingHolidays.push(moment(new Date(missingDate)).format("DD-MM-YYYY"));
-                    }    
+                    }
                     diff--;
-                 } 
+                }
             } else {
                 if (new Date(start.toLocaleString()).getDay() !== 6 && new Date(start.toLocaleString()).getDay() !== 0) {
                     datesAfterInsertingHolidays.push(start.format("DD-MM-YYYY"));
-            	}
+                }
             }
         }
-        if(!datesAfterInsertingHolidays.includes(this.stringToDate(moment().format("DD-MM-YYYY")))){
+        if (!datesAfterInsertingHolidays.includes(this.stringToDate(moment().format("DD-MM-YYYY")))) {
             datesAfterInsertingHolidays.push(moment().format("DD-MM-YYYY"));
         }
         return datesAfterInsertingHolidays;
@@ -105,7 +105,7 @@ export class BcpChartComponent implements OnInit {
                 let chartData = [];
                 data.bcpDetailsUpdate.forEach(bcpDetails => {
                     var bcpUserDetail: UserDetail = model.userDetail.find(x => x.AssociateId === bcpDetails.AssociateID);
-                    if (bcpUserDetail != null) {                        
+                    if (bcpUserDetail != null) {
                         var bcpModelDetails = new BCPDetailsGraph(
                             bcpUserDetail.AccountID,
                             bcpUserDetail.AccountName,
@@ -466,7 +466,47 @@ export class BcpChartComponent implements OnInit {
             {
                 name: 'Cognizant BYOD',
                 data: Yaxis_byod
-            }]
+            }],
+            exporting: {
+                buttons: {
+                    contextButton: {
+                        menuItems: [{
+                            text: "Export to Excel",
+                            onclick: this.exportContainer1.bind(this)
+                        },
+                        {
+                            text: 'Export to PDF',
+                            onclick: function () {
+                                this.exportChart({
+                                    type: 'application/pdf'
+                                });
+                            }
+                        },
+                        {
+                            text: 'Export to JPG',
+                            onclick: function () {
+                                this.exportChart({
+                                    type: 'JPG'
+                                });
+                            }
+                        },
+                        {
+                            text: 'Export to PNG',
+                            onclick: function () {
+                                this.exportChart({
+                                    type: 'PNG'
+                                });
+                            }
+                        },
+                        {
+                            text: 'Print your chart',
+                            onclick: function () {
+                                this.print();
+                            }
+                        }]
+                    }
+                }
+            }
         });
     }
 
@@ -516,7 +556,47 @@ export class BcpChartComponent implements OnInit {
                     name: 'PII Access - No',
                     y: PIIDataAccessNo
                 }]
-            }]
+            }],
+            exporting: {
+                buttons: {
+                    contextButton: {
+                        menuItems: [{
+                            text: "Export to Excel",
+                            onclick: this.PiiAcessExcelSheetData.bind(this)
+                        },
+                        {
+                            text: 'Export to PDF',
+                            onclick: function () {
+                                this.exportChart({
+                                    type: 'application/pdf'
+                                });
+                            }
+                        },
+                        {
+                            text: 'Export to JPG',
+                            onclick: function () {
+                                this.exportChart({
+                                    type: 'JPG'
+                                });
+                            }
+                        },
+                        {
+                            text: 'Export to PNG',
+                            onclick: function () {
+                                this.exportChart({
+                                    type: 'PNG'
+                                });
+                            }
+                        },
+                        {
+                            text: 'Print your chart',
+                            onclick: function () {
+                                this.print();
+                            }
+                        }]
+                    }
+                }
+            }
         });
     }
     workFromHomeGraph(wfhRedinessYes, wfhRedinessNo) {
@@ -565,7 +645,47 @@ export class BcpChartComponent implements OnInit {
                     name: 'WFH - No',
                     y: wfhRedinessNo
                 }]
-            }]
+            }],
+            exporting: {
+                buttons: {
+                    contextButton: {
+                        menuItems: [{
+                            text: "Export to Excel",
+                            onclick: this.WFHReadinessExcelSheetData.bind(this)
+                        },
+                        {
+                            text: 'Export to PDF',
+                            onclick: function () {
+                                this.exportChart({
+                                    type: 'application/pdf'
+                                });
+                            }
+                        },
+                        {
+                            text: 'Export to JPG',
+                            onclick: function () {
+                                this.exportChart({
+                                    type: 'JPG'
+                                });
+                            }
+                        },
+                        {
+                            text: 'Export to PNG',
+                            onclick: function () {
+                                this.exportChart({
+                                    type: 'PNG'
+                                });
+                            }
+                        },
+                        {
+                            text: 'Print your chart',
+                            onclick: function () {
+                                this.print();
+                            }
+                        }]
+                    }
+                }
+            }
         });
     }
     BYODComplianceGraph(BYODComplianceYes, BYODComplianceNo) {
@@ -614,7 +734,47 @@ export class BcpChartComponent implements OnInit {
                     name: 'BYODCompliance - No',
                     y: BYODComplianceNo
                 }]
-            }]
+            }],
+            exporting: {
+                buttons: {
+                    contextButton: {
+                        menuItems: [{
+                            text: "Export to Excel",
+                            onclick: this.BYODComplianceExcelSheetData.bind(this)
+                        },
+                        {
+                            text: 'Export to PDF',
+                            onclick: function () {
+                                this.exportChart({
+                                    type: 'application/pdf'
+                                });
+                            }
+                        },
+                        {
+                            text: 'Export to JPG',
+                            onclick: function () {
+                                this.exportChart({
+                                    type: 'JPG'
+                                });
+                            }
+                        },
+                        {
+                            text: 'Export to PNG',
+                            onclick: function () {
+                                this.exportChart({
+                                    type: 'PNG'
+                                });
+                            }
+                        },
+                        {
+                            text: 'Print your chart',
+                            onclick: function () {
+                                this.print();
+                            }
+                        }]
+                    }
+                }
+            }
         });
     }
 
@@ -745,7 +905,47 @@ export class BcpChartComponent implements OnInit {
             {
                 name: 'COVID19',
                 data: covidYaxis
-            }]
+            }],
+            exporting: {
+                buttons: {
+                    contextButton: {
+                        menuItems: [{
+                            text: "Export to Excel",
+                            onclick: this.personalLeaveExcelSheetData.bind(this)
+                        },
+                        {
+                            text: 'Export to PDF',
+                            onclick: function () {
+                                this.exportChart({
+                                    type: 'application/pdf'
+                                });
+                            }
+                        },
+                        {
+                            text: 'Export to JPG',
+                            onclick: function () {
+                                this.exportChart({
+                                    type: 'JPG'
+                                });
+                            }
+                        },
+                        {
+                            text: 'Export to PNG',
+                            onclick: function () {
+                                this.exportChart({
+                                    type: 'PNG'
+                                });
+                            }
+                        },
+                        {
+                            text: 'Print your chart',
+                            onclick: function () {
+                                this.print();
+                            }
+                        }]
+                    }
+                }
+            }
         });
     }
 
@@ -760,7 +960,15 @@ export class BcpChartComponent implements OnInit {
         require('highcharts/modules/exporting')(Highcharts);
         Highcharts.chart('container4', {
             chart: {
-                type: 'column'
+                type: 'column',
+                events: {
+                    click: (e) => {
+                        debugger;
+                        if (e.toElement.alt == "download") {
+                            console.log(e.toElement.alt);
+                        }
+                    }
+                }
             },
             title: {
                 text: 'Attendance'
@@ -790,7 +998,49 @@ export class BcpChartComponent implements OnInit {
             series: [{
                 name: 'Attendance',
                 data: yaxis
-            }]
+            }],
+            exporting: {
+                buttons: {
+                    contextButton: {
+                        menuItems: [
+                            {
+                                text: "Export to Excel",
+                                onclick: this.attendanceDownloadByDate.bind(this)
+                            },
+                            {
+                                text: 'Export to PDF',
+                                onclick: function () {
+                                    this.exportChart({
+                                        type: 'application/pdf'
+                                    });
+                                }
+                            },
+                            {
+                                text: 'Export to JPG',
+                                onclick: function () {
+                                    this.exportChart({
+                                        type: 'JPG'
+                                    });
+                                }
+                            },
+                            {
+                                text: 'Export to PNG',
+                                onclick: function () {
+                                    this.exportChart({
+                                        type: 'PNG'
+                                    });
+                                }
+                            },
+                            {
+                                text: 'Print your chart',
+                                onclick: function () {
+                                    this.print();
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
         });
     }
 
@@ -986,7 +1236,47 @@ export class BcpChartComponent implements OnInit {
                 name: 'Protocol Count',
                 data: [protocolA, protocolB1, protocolB2, protocolB3, protocolB4, protocolC1, protocolC2, protocolC3,
                     protocolC4, protocolD]
-            }]
+            }],
+            exporting: {
+                buttons: {
+                    contextButton: {
+                        menuItems: [{
+                            text: "Export to Excel",
+                            onclick: this.downloadProtocolReport.bind(this)
+                        },
+                        {
+                            text: 'Export to PDF',
+                            onclick: function () {
+                                this.exportChart({
+                                    type: 'application/pdf'
+                                });
+                            }
+                        },
+                        {
+                            text: 'Export to JPG',
+                            onclick: function () {
+                                this.exportChart({
+                                    type: 'JPG'
+                                });
+                            }
+                        },
+                        {
+                            text: 'Export to PNG',
+                            onclick: function () {
+                                this.exportChart({
+                                    type: 'PNG'
+                                });
+                            }
+                        },
+                        {
+                            text: 'Print your chart',
+                            onclick: function () {
+                                this.print();
+                            }
+                        }]
+                    }
+                }
+            }
         });
     }
 }
