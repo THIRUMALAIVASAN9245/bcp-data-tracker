@@ -23,7 +23,13 @@
 
   <div class="container">
     <div class="row">
-      <div class="col-lg-12" style="text-align: right;">
+      <div class="col-lg-9" style="text-align: right;">
+        <a (click)="navigateToReport()">
+          <span style="cursor: pointer">
+            View MIS Report </span>
+        </a>
+      </div>
+      <div class="col-lg-3" style="text-align: right;">
         <a (click)="downloadData()" style="cursor: pointer;">
           <span>Download - All Accounts</span>
         </a>

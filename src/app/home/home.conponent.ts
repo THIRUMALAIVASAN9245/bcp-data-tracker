@@ -47,6 +47,9 @@ export class HomeComponent {
     });
   }
 
+  navigateToReport() {
+    this.router.navigate(['/bcp-report', "0"]); //// for all account - BCP graph report
+  }
 
   navigateAccountDetails(accountId) {
     this.router.navigate(['/bcm-user-tracker', accountId]);

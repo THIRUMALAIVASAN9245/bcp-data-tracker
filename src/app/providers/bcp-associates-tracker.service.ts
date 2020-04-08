@@ -55,6 +55,42 @@ export class BcpAssociateTrackerService {
         }));
     }
 
+    getBcpAssociateTrackerAll() {
+        var apiURL = this.baseUrl + "_api/lists/getbytitle('BCPMasterTrackerFull')/items?$filter=isDeleted eq 0&$top=10000";
+        let getCourses = this.httpClientService.get(apiURL);
+
+        return forkJoin([getCourses]).pipe(map((resspone: any) => {
+            const courseDetails = resspone[0].value.map(item => {
+                return new UserDetail(
+                    item.MarketUnit,
+                    item.AccountID,
+                    item.AccountName,
+                    item.AssociateID,
+                    item.AssociateName,
+                    item.ParentCustomerName,
+                    item.Status,
+                    item.AssociateResponsetoPersonalDeviceAvailabilitySurvey,
+                    item.FinalMISDepartment,
+                    item.Location,
+                    item.AddressforShipping,
+                    item.Contact,
+                    item.LaptopRequested,
+                    item.CorporateStatusLaptop,
+                    item.DesktopRequested,
+                    item.CorporateStatusDesktop,
+                    item.CorporateStatusDesktop,
+                    item.CorporateStatusDesktop,
+                    item.Temporary,
+                    item.AlwaysNew2,
+                    item.DuplicateFlag
+                );
+            });
+
+            return new UserDetailResponse(courseDetails, 10)
+        }));
+    }
+
+
     getBCPUpdateAll(projectId: any) {
         const date = moment().format("DD-MM-YYYY");
         var apiURL = this.baseUrl + "_vti_bin/listdata.svc/BCPDataTracker?$filter=((substringof(%27" + date + "%27,UpdateDate)%20eq%20true)%20and%20startswith(AccountID,%27" + projectId + "%27)%20and%20IsDeleted%20eq%200)&$top=1000";
