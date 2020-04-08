@@ -12,7 +12,8 @@ export interface IBCPDetailsUpdate {
     BYODCompliance: string,
     Dongles: string,
     UpdateDate: string,
-    UniqueId: string
+    UniqueId: string,
+    Allocation: string
 }
 
 export class BCPDetailsUpdate implements IBCPDetailsUpdate {
@@ -31,7 +32,8 @@ export class BCPDetailsUpdate implements IBCPDetailsUpdate {
         public BYODCompliance: string,
         public Dongles: string,
         public UpdateDate: string,
-        public UniqueId: string) {
+        public UniqueId: string,
+        public Allocation: string) {
     }
 }
 

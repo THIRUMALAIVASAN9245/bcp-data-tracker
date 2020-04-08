@@ -19,7 +19,8 @@ export interface IUserDetail {
     Sort: string,
     Temporary: string,
     AlwaysNew2: string,
-    DuplicateFlag: string
+    DuplicateFlag: string,
+    Allocation: string
 }
 
 export class UserDetail implements IUserDetail {
@@ -45,7 +46,8 @@ export class UserDetail implements IUserDetail {
         public Sort: string,
         public Temporary: string,
         public AlwaysNew2: string,
-        public DuplicateFlag: string) {
+        public DuplicateFlag: string,
+        public Allocation: string) {
     }
 }
 

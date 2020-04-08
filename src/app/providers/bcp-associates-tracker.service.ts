@@ -47,7 +47,8 @@ export class BcpAssociateTrackerService {
                     item.CorporateStatusDesktop,
                     item.Temporary,
                     item.AlwaysNew2,
-                    item.DuplicateFlag
+                    item.DuplicateFlag,
+                    item.isDeleted == 0 ? "Active" : "Inactive"
                 );
             });
 
@@ -82,7 +83,8 @@ export class BcpAssociateTrackerService {
                     item.CorporateStatusDesktop,
                     item.Temporary,
                     item.AlwaysNew2,
-                    item.DuplicateFlag
+                    item.DuplicateFlag,
+                    item.isDeleted == 0 ? "Active" : "Inactive"
                 );
             });
 
@@ -115,7 +117,8 @@ export class BcpAssociateTrackerService {
                     item.BYODCompliance,
                     item.Dongle,
                     item.UpdateDate,
-                    item.Id
+                    item.Id,
+                    item.IsDeleted == 0 ? "Active" : "Inactive"
                 );
             });
 

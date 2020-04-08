@@ -31,7 +31,8 @@ export class BcpChartService {
                     item.BYODCompliance,
                     item.Dongle,
                     item.UpdateDate,
-                    item.Id
+                    item.Id,
+                    item.IsDeleted == 0 ? "Active" : "Inactive"
                 );
             });
 
@@ -59,7 +60,8 @@ export class BcpChartService {
                     item.BYODCompliance,
                     item.Dongle,
                     item.UpdateDate,
-                    item.Id
+                    item.Id,
+                    item.IsDeleted == 0 ? "Active" : "Inactive"
                 );
             });
 

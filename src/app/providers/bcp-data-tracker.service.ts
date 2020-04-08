@@ -35,7 +35,8 @@ export class BcpDataTrackerService {
                     item.BYODCompliance,
                     item.Dongle,
                     item.UpdateDate,
-                    item.Id
+                    item.Id,
+                    item.IsDeleted == 0 ? "Active" : "Inactive"
                 );
             });
 

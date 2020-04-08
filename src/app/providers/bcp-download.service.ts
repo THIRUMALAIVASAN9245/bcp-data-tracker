@@ -40,7 +40,7 @@ export class BcpDownloadService {
         serviceCalls = masterURLs;
         serviceCalls = serviceCalls.concat(dataTrackerURLs);
         serviceCalls = serviceCalls.concat(dailyUpdateURLs);
-        return forkJoin(serviceCalls);
+        return this.getForkJoin(serviceCalls);
     }
 
     exportAccountDetails(filters: any) {
@@ -60,7 +60,7 @@ export class BcpDownloadService {
         serviceCalls.push(dataTrackerURLs);
         serviceCalls = serviceCalls.concat(dailyUpdateURLs);
 
-        return forkJoin(serviceCalls);
+        return this.getForkJoin(serviceCalls);
     }
 
     getMasterURL(filters: any) {
@@ -113,15 +113,13 @@ export class BcpDownloadService {
         return Math.ceil(count / this.recordsToReturn);
     }
 
-    forkJoin(serviceCalls: any) {
+    getForkJoin(serviceCalls: any) {
         return forkJoin(serviceCalls).pipe(map((response: any) => {
             const exportData = [] as any;
-            var masterDataCount = this.httpCallCount(this.masterDataCount);
+            var masterDataCount = this.masterDataCount == 0 ? 1 : this.httpCallCount(this.masterDataCount);
             var dailyTrackerCount = this.httpCallCount(this.dailyUpdateCount);
             var allMasterDetail = [];
-            if (masterDataCount == 0) {
-                allMasterDetail.push(response[0].value);
-            }
+
             for (var index = 0; index < masterDataCount; index++) {
                 allMasterDetail.push(...response[index].value);
             }
@@ -148,15 +146,12 @@ export class BcpDownloadService {
                     item.Sort,
                     item.Temporary,
                     item.AlwaysNew2,
-                    item.DuplicateFlag
+                    item.DuplicateFlag,
+                    item.isDeleted == 0 ? "Active" : "Inactive"
                 );
             });
 
             var dataTracker = [];
-            if (masterDataCount == 0) {
-                dataTracker.push(response[1].value);
-            }
-
             for (var index = masterDataCount; index < masterDataCount + masterDataCount; index++) {
                 dataTracker.push(...response[index].value);
             }
@@ -176,14 +171,12 @@ export class BcpDownloadService {
                     item.BYODCompliance,
                     item.Dongle,
                     item.UpdateDate,
-                    ""
+                    "",
+                    item.IsDeleted == 0 ? "Active" : "Inactive"
                 );
             });
 
             var dailyUpdate = [];
-            if (dailyTrackerCount == 0) {
-                dailyUpdate.push(response[2].value);
-            }
             for (var index = masterDataCount * 2; index < masterDataCount * 2 + dailyTrackerCount; index++) {
                 dailyUpdate.push(...response[index].value);
             }
@@ -303,7 +296,8 @@ export class BcpDownloadService {
             latestRecord ? latestRecord.PIIDataAccess : "",
             latestRecord ? latestRecord.Protocol : "",
             latestRecord ? latestRecord.BYODCompliance : "",
-            latestRecord ? latestRecord.Dongle : "");
+            latestRecord ? latestRecord.Dongle : "",
+            details.Allocation);
     }
 
     attendanceDetailsSheet(getAddten: any) {

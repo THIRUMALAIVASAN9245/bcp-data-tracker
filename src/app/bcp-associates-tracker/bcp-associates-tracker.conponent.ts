@@ -110,7 +110,7 @@ export class BcpAssociateTrackerComponent {
       WFHDeviceType: bcpDetailsDisplay.CurrentEnabledforWFH == "Yes" ? bcpDetailsDisplay.WFHDeviceType : "",
       Comments: bcpDetailsDisplay.Comments,
       PersonalReason: bcpDetailsDisplay.CurrentEnabledforWFH == "No" ? bcpDetailsDisplay.PersonalReason : "",
-      AssetId: bcpDetailsDisplay.CurrentEnabledforWFH == "Yes" && 
+      AssetId: bcpDetailsDisplay.CurrentEnabledforWFH == "Yes" &&
         (bcpDetailsDisplay.WFHDeviceType == "Cognizant Device" || bcpDetailsDisplay.WFHDeviceType == "Customer Device"
           || bcpDetailsDisplay.WFHDeviceType == "Cognizant BYOD") ? bcpDetailsDisplay.AssetId : "",
       PIIDataAccess: bcpDetailsDisplay.PIIDataAccess,
@@ -217,7 +217,7 @@ export class BcpAssociateTrackerComponent {
     this.bcpDownloadService.exportAccountDetails(filterData).subscribe(model => {
       this.mergeData(model);
       var data = [];
-      const sheetOneResponse = this.associateDetails.length > 0 ? this.associateDetails : [new AssociateDetails("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")];
+      const sheetOneResponse = this.associateDetails.length > 0 ? this.associateDetails : [new AssociateDetails("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")];
       const sheetTwoResponse = this.bCPDailyUpdate.length > 0 ? this.bCPDailyUpdate : [new BCPDailyUpdate("", "", "", "")];
       var updatedDailyTracker = this.bcpDownloadService.generateDailyUpdate(sheetOneResponse, sheetTwoResponse);
 
@@ -246,7 +246,8 @@ export class BcpAssociateTrackerComponent {
         BYODCompliance: "",
         Dongles: "",
         UpdateDate: moment().format("DD-MM-YYYY"),
-        UniqueId: ""
+        UniqueId: "",
+        Allocation: "Active"
       }
 
       this.bcpDetailsDisplay.push(bcpDetailsEmpty);
@@ -570,12 +571,12 @@ export class BcpAssociateTrackerComponent {
   }
 
   mergeData(model: any) {
-    var masterDetails = model[0].value;
+    var masterDetails = model[0];
 
     for (var index = 0; index < masterDetails.length; index++) {
       var details = masterDetails[index];
 
-      var activityDetails = this.bcpDownloadService.getAssciateActivity(model[1].value, details.AssociateID);
+      var activityDetails = this.bcpDownloadService.getAssciateActivity(model[1], details.AssociateID);
       var latestRecord = null;
       if (activityDetails != undefined && activityDetails.length > 0) {
         latestRecord = this.bcpDownloadService.getLatestRecord(activityDetails);
@@ -585,7 +586,7 @@ export class BcpAssociateTrackerComponent {
 
       this.associateDetails.push(data);
 
-      const getAddten = model[2].value.filter(atten => atten.AssociateID == masterDetails[index].AssociateID);
+      const getAddten = model[2].filter(atten => atten.AssociateID == masterDetails[index].AssociateID);
       if (getAddten && getAddten.length > 0) {
         getAddten.forEach(element => {
           var data = this.bcpDownloadService.attendanceDetailsSheet(element);
