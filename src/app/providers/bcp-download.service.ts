@@ -220,6 +220,7 @@ export class BcpDownloadService {
         var dailyAttendanceDetails = [];
         var initialDate = new Date(2020, 2, 30);
         var curerntDate = new Date();
+        associateDetails = associateDetails.filter(x => x.Allocation == "Active");
         while (curerntDate.getTime() > initialDate.getTime()) {
             if (initialDate.getDay() == 6 || initialDate.getDay() == 0) {
 
@@ -266,8 +267,8 @@ export class BcpDownloadService {
 
     associateDetailsSheet(details: any, latestRecord: any) {
         return new AssociateDetails(
-            details.Title,
-            details.AssociateID,
+            details.MarketUnit,
+            details.AssociateId,
             details.AssociateName,
             details.AccountID,
             details.AccountName,
@@ -303,7 +304,7 @@ export class BcpDownloadService {
     attendanceDetailsSheet(getAddten: any) {
         return new BCPDailyUpdate(
             getAddten.Title,
-            getAddten.AssociateID,
+            getAddten.AssociateId,
             getAddten.Attendance,
             getAddten.UpdateDate
         );

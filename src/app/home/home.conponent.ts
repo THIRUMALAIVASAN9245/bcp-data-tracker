@@ -92,7 +92,7 @@ export class HomeComponent {
     for (var index = 0; index < masterDetails.length; index++) {
       var details = masterDetails[index];
 
-      var activityDetails = this.bcpDownloadService.getAssciateActivity(model[1], details.AssociateID);
+      var activityDetails = this.bcpDownloadService.getAssciateActivity(model[1], details.AssociateId);
       var latestRecord = null;
       if (activityDetails != undefined && activityDetails.length > 0) {
         latestRecord = this.bcpDownloadService.getLatestRecord(activityDetails);
@@ -101,7 +101,7 @@ export class HomeComponent {
       var data = this.bcpDownloadService.associateDetailsSheet(details, latestRecord);
       this.associateDetails.push(data);
 
-      const getAddten = model[2].filter(atten => atten.AssociateID == masterDetails[index].AssociateID);
+      const getAddten = model[2].filter(atten => atten.AssociateID == masterDetails[index].AssociateId);
       if (getAddten && getAddten.length > 0) {
         getAddten.forEach(element => {
           var data = this.bcpDownloadService.attendanceDetailsSheet(element);
