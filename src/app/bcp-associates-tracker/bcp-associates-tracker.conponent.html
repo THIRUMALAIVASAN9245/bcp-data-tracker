@@ -23,7 +23,7 @@
         </div>
         <div class="col col-lg-4 badge badge-outline-dark mr-3 mb-2" style="text-align: right;">
             <button [routerLink]="['/home']" style="padding: 0; border: 0; margin: 0; cursor: pointer;"><img
-                    src="https://orleans.lib.in.us/wp-content/uploads/2014/12/backButton.jpg" alt="back"
+                    src="{{baseApplicationUrl}}backButton.jpg" alt="back"
                     style="width: 65px;height: 45px;"></button>
         </div>
     </div>
@@ -228,12 +228,9 @@
                         <td align="center">
                             <button id="submitData_{{i}}" (click)="submitData(product.AssociateId,i)"
                                 style="padding: 0;border: 0;margin: 0;cursor: pointer;">
-                                <img src="https://previews.123rf.com/images/faysalfarhan/faysalfarhan1707/faysalfarhan170700275/81798828-save-floppy-disk-icon-isolated-on-glassy-blue-round-button-abstract-illustration.jpg"
+                                <img src="{{baseApplicationUrl}}save_Icon.jpg"
                                     alt="Submit" style="width: 30px;">
                             </button>
-                            <!-- <img (click)="submitData(product.AssociateId)"
-                                src="https://previews.123rf.com/images/faysalfarhan/faysalfarhan1707/faysalfarhan170700275/81798828-save-floppy-disk-icon-isolated-on-glassy-blue-round-button-abstract-illustration.jpg"
-                                alt="Submit" style="width: 30px;"> -->
                         </td>
                     </tr>
                 </tbody>

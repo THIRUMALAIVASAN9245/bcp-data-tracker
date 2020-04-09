@@ -6,6 +6,7 @@ import { BCPDailyUpdate } from '../models/BCPDailyUpdate';
 import { BcpFileExportService } from '../providers/bcp-file-export-service';
 import { BcpAccountMasterService } from '../providers/bcp-account-master.service';
 import { BcpDownloadService } from '../providers/bcp-download.service';
+import { environment } from 'src/environments/environment.prod';
 
 @Component({
   selector: 'bcm-home',
@@ -20,6 +21,7 @@ export class HomeComponent {
   bCPDailyUpdate: BCPDailyUpdate[] = [];
   bCPMasterDataCount: number = 0;
   bCPDailyUpdateCount: number = 0;
+  baseApplicationUrl = environment.apiBaseImageUrl;
 
   constructor(
     private bcpAccountMasterService: BcpAccountMasterService,

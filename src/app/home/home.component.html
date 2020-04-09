@@ -1,25 +1,7 @@
 <div class="content" role="main">
   <!-- Resources -->
   <h2 style="margin: 30px 0 !important;">MIS Dashboard - UK & I-INS</h2>
-  <div class="card-container">
-
-    <!-- <a class="card wrap" [routerLink]="['/bcp-dashboard']" rel="noopener" style="height: 50px !important;">
-      <div class="text-center" style="padding-left: 15px; width: 80%;height: 50px !important;width: 280px !important;">
-        <span style="padding-left: 15px;">View MIS Dashboard</span>
-      </div>
-      <img width=50 align="right" alt="View MIS Dashboard"
-        src="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ206N7tUD_yFvGDN7_7EPGn5lkxlfSZeN1-bq3NN3uldzplGnu" />
-    </a> -->
-
-    <!-- <a class="card wrap" [routerLink]="['/bcp-report']" rel="noopener" style="height: 50px !important;">
-      <div class="text-center" style="padding-left: 15px; width: 80%;height: 50px !important;width: 280px !important;">
-        <span style="padding-left: 15px;">View MIS Report</span>
-      </div>
-      <img width=50 align="right" alt="View MIS Report"
-        src="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ206N7tUD_yFvGDN7_7EPGn5lkxlfSZeN1-bq3NN3uldzplGnu" />
-    </a> -->
-
-  </div>
+  <div class="card-container"> </div>
 
   <div class="container">
     <div class="row">
@@ -51,8 +33,7 @@
     <div
       *ngFor="let account of accountMasterData | grdFilter: {AccountId: searchText, AccountName:searchText}; let i = index">
       <a class="card" (click)="navigateAccountDetails(account.AccountId)" rel="noopener">
-        <img width="50" alt="{{account.AccountName}}"
-          src="https://cdn.iconscout.com/icon/premium/png-256-thumb/empty-1670040-1418099.png" />
+        <img width="50" alt="{{account.AccountName}}" src="{{baseApplicationUrl}}empty-Image.jpg" />
         <div class="text-center">
           <span style="padding-left: 15px;">{{account.AccountName}}</span>
           <svg class="material-icons" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -60,98 +41,4 @@
         </div>
       </a>
     </div>
-
-    <!-- <a class="card" [routerLink]="['/bcm-user-tracker', 1208366]" rel="noopener">
-      <img width="50" alt="Aegon UK Corporate Services Limited"
-        src="https://i1.wp.com/www.ech.nl/wp-content/uploads/2016/05/AEGON.jpg" />
-      <div class="text-center">
-        <span style="padding-left: 15px;">Aegon UK Corporate Services Limited</span>
-        <svg class="material-icons" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-          <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" /></svg>
-      </div>
-    </a>
-
-    <a class="card" [routerLink]="['/bcm-user-tracker', 1215951]" rel="noopener">
-      <img width="50" alt="Aspen Insurance UK Services Ltd"
-        src="data:image/png;base64,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" />
-      <div class="text-center">
-        <span style="padding-left: 15px;">Aspen Insurance UK Services Ltd</span>
-        <svg class="material-icons" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-          <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" /></svg>
-      </div>
-    </a>
-
-    <a class="card" [routerLink]="['/bcm-user-tracker', 1228554]" rel="noopener">
-      <img width="50" alt="Charles Taylor plc"
-        src="https://images.jg-cdn.com/image/74007678-f144-440a-a46e-8ea6436c7e14.jpg?template=FundraisingPageHeroImageM" />
-      <div class="text-center">
-        <span style="padding-left: 15px;">Charles Taylor plc</span>
-        <svg class="material-icons" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-          <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" /></svg>
-      </div>
-    </a>
-  </div>
-
-  <div class="card-container">
-    <a class="card" [routerLink]="['/bcm-user-tracker', 1225400]" rel="noopener">
-      <img width="50" alt="DL Insurance Services Limited"
-        src="https://banner2.cleanpng.com/20180705/grj/kisspng-direct-line-group-insurance-united-kingdom-royal-b-direct-5b3ea5b74d8725.4944437715308323113176.jpg" />
-      <div class="text-center">
-        <span style="padding-left: 15px;">DL Insurance Services Limited</span>
-        <svg class="material-icons" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-          <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" /></svg>
-      </div>
-    </a>
-
-    <a class="card" [routerLink]="['/bcm-user-tracker', 1211365]" rel="noopener">
-      <img width="50" alt="Hiscox Underwriting Group Services Ltd"
-        src="https://www.syntec.co.uk/wp-content/uploads/2019/09/Hiscoxlogo-580x358.jpg" />
-      <div class="text-center">
-        <span style="padding-left: 15px;">Hiscox Underwriting Group Services Ltd</span>
-        <svg class="material-icons" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-          <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" /></svg>
-      </div>
-    </a>
-
-    <a class="card" [routerLink]="['/bcm-user-tracker', 1211531]" rel="noopener">
-      <img width="50" alt="Royal London Mutual Insurance Society"
-        src="https://images.easyfundraising.org.uk/retailer/cropped/logo-royal-london-life-insurance-1531917306.png" />
-      <div class="text-center">
-        <span style="padding-left: 15px;">Royal London Mutual Insurance Society</span>
-        <svg class="material-icons" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-          <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" /></svg>
-      </div>
-    </a>
-  </div>
-
-  <div class="card-container">
-    <a class="card" [routerLink]="['/bcm-user-tracker', 1310296]" rel="noopener">
-      <img width="50" alt="Standard Life Aberdeen"
-        src="https://i.dailymail.co.uk/i/newpix/2018/04/21/19/4B5E55E100000578-5642273-image-m-134_1524334393249.jpg" />
-      <div class="text-center">
-        <span style="padding-left: 15px;">Standard Life Aberdeen</span>
-        <svg class="material-icons" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-          <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" /></svg>
-      </div>
-    </a>
-
-    <a class="card" [routerLink]="['/bcm-user-tracker', 1229274]" rel="noopener">
-      <img width="50" alt="The Automobile Association"
-        src="https://static.wixstatic.com/media/31e20a_a4ff05908d984ca5a7c5b7c4f44fa1c3.jpg" />
-      <div class="text-center">
-        <span style="padding-left: 15px;">The Automobile Association</span>
-        <svg class="material-icons" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-          <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" /></svg>
-      </div>
-    </a>
-
-    <a class="card" [routerLink]="['/bcm-user-tracker', 1222441]" rel="noopener">
-      <img width="50" alt="Willis" src="https://mightydata.com/wp-content/uploads/2011/01/willis-logo-300x150.jpg" />
-      <div class="text-center">
-        <span style="padding-left: 15px;">Willis</span>
-        <svg class="material-icons" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-          <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" /></svg>
-      </div>
-    </a>
-  </div> -->
   </div>

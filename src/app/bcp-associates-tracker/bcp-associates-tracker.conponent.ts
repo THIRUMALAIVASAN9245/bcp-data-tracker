@@ -34,6 +34,7 @@ export class BcpAssociateTrackerComponent {
   bCPDailyUpdate: BCPDailyUpdate[] = [];
   baseUrl = environment.apiBaseUrl;
   bCPDailyUpdateCount: number = 0;
+  baseApplicationUrl = environment.apiBaseImageUrl;
 
   constructor(private bcpAssociateTrackerService: BcpAssociateTrackerService,
     private bcpDataTrackerService: BcpDataTrackerService,

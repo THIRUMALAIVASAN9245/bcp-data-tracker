@@ -9,6 +9,7 @@ import * as moment from 'moment';
 import { BCPDetailsGraph } from '../models/BCPDetailsGraph';
 import { UserDetail } from '../models/user-details';
 import { BcpAccountMasterService } from '../providers/bcp-account-master.service';
+import { environment } from 'src/environments/environment.prod';
 
 const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
 const EXCEL_EXTENSION = '.xlsx';
@@ -38,11 +39,20 @@ export class BcpChartComponent implements OnInit {
     piiAccessData: any = [];
     byodData: any = [];
     projectDetails: any;
+    isLoading = false;
+    baseApplicationUrl = environment.apiBaseImageUrl;
+
+    chart1;
+    chart2;
+    chart3;
+    chart4;
+    chart5;
+    chart6;
+    chart7;
 
     ngOnInit() {
         this.route.params.subscribe(params => { this.projectId = params["id"] });
         if (this.projectId == null || this.projectId.trim() === "0" || this.projectId.trim() === "") {
-            this.projectId = "AllAccount";
             this.bcpChartService.getBCPDataTrackerHistoryCountAll().subscribe(data => {
                 this.accountCount = data;
                 this.getBcpDetailsUpdateDataAll();
@@ -54,9 +64,144 @@ export class BcpChartComponent implements OnInit {
             });
         }
 
-        this.bcpAccountMasterService.getAccountMasterById(this.projectId).subscribe(data => {
-            debugger;
-            this.projectDetails = data[0];
+        if (this.projectId != 0) {
+            this.bcpAccountMasterService.getAccountMasterById(this.projectId).subscribe(data => {
+                debugger;
+                this.projectDetails = data[0];
+            });
+        }
+    }
+
+    DownloadChartReport(fileType) {
+        debugger;
+        var Highcharts = require('highcharts');
+        require('highcharts/modules/exporting')(Highcharts);
+        Highcharts.getSVG = function (charts, accountDetail) {
+            var svgArr = [],
+                top = 0,
+                width = 0;
+
+            Highcharts.each(charts, function (chart, index) {
+                debugger;
+                if (index == 0 && accountDetail) {
+                    debugger;
+                    console.log(index);
+                    var svg = chart.getSVG(),
+                        // Get width/height of SVG for export
+                        svgWidth = +svg.match(
+                            /^<svg[^>]*width\s*=\s*\"?(\d+)\"?[^>]*>/
+                        )[1],
+                        svgHeight = +svg.match(
+                            /^<svg[^>]*height\s*=\s*\"?(\d+)\"?[^>]*>/
+                        )[1];
+
+                    svg = svg.replace(
+                        '<svg',
+                        '<g transform="translate(0,' + 150 + ')" '
+                    );
+                    svg = svg.replace('</svg>', '</g>');
+
+                    top += svgHeight + 180;
+                    width = Math.max(width, svgWidth);
+                    svgArr.push(svg);
+
+                    let Title = "MIS Dashboard Report";
+                    Title = Title.replace(/\n/g, '</tspan><tspan x="0" dy="1.2em">');
+                    const txtTitle = '<text x= "' + 0 + '" y = "' + (10 + 20) + '" styles = "' + Title + '"><tspan x="35%" dy="1.2em">' + Title + '</tspan></text>';
+                    svgArr.push(txtTitle);
+
+                    let AccountId = "Account ID : " + accountDetail.AccountId;
+                    AccountId = AccountId.replace(/\n/g, '</tspan><tspan x="0" dy="1.2em">');
+                    const txtId = '<text x= "' + 0 + '" y = "' + 70 + '" styles = "' + AccountId + '"><tspan x="50" dy="1.2em">' + AccountId + '</tspan></text>';
+                    svgArr.push(txtId);
+
+                    let AccountName = "Account Name : " + accountDetail.AccountName;
+                    AccountName = AccountName.replace(/\n/g, '</tspan><tspan x="0" dy="1.2em">');
+                    const txtName = '<text x= "' + 0 + '" y = "' + 90 + '" styles = "' + AccountName + '"><tspan x="50" dy="1.2em">' + AccountName + '</tspan></text>';
+                    svgArr.push(txtName);
+
+                } else if (index == 0 && accountDetail == undefined) {
+                    debugger;
+                    var svg = chart.getSVG(),
+                        // Get width/height of SVG for export
+                        svgWidth = +svg.match(
+                            /^<svg[^>]*width\s*=\s*\"?(\d+)\"?[^>]*>/
+                        )[1],
+                        svgHeight = +svg.match(
+                            /^<svg[^>]*height\s*=\s*\"?(\d+)\"?[^>]*>/
+                        )[1];
+
+                    svg = svg.replace(
+                        '<svg',
+                        '<g transform="translate(0,' + 75 + ')" '
+                    );
+                    svg = svg.replace('</svg>', '</g>');
+
+                    top += svgHeight + 80;
+                    width = Math.max(width, svgWidth);
+
+                    svgArr.push(svg);
+
+                    let Title = "MIS Dashboard Report";
+                    Title = Title.replace(/\n/g, '</tspan><tspan x="0" dy="1.2em">');
+                    const txtId = '<text x= "' + 0 + '" y = "' + (10 + 20) + '" styles = "' + Title + '"><tspan x="35%" dy="1.2em">' + Title + '</tspan></text>';
+                    svgArr.push(txtId);
+
+                } else {
+                    var svg = chart.getSVG(),
+                        // Get width/height of SVG for export
+                        svgWidth = +svg.match(
+                            /^<svg[^>]*width\s*=\s*\"?(\d+)\"?[^>]*>/
+                        )[1],
+                        svgHeight = +svg.match(
+                            /^<svg[^>]*height\s*=\s*\"?(\d+)\"?[^>]*>/
+                        )[1];
+
+                    svg = svg.replace(
+                        '<svg',
+                        '<g transform="translate(0,' + top + ')" '
+                    );
+                    svg = svg.replace('</svg>', '</g>');
+
+                    top += svgHeight;
+                    width = Math.max(width, svgWidth);
+
+                    svgArr.push(svg);
+                }
+
+            });
+
+            return '<svg height="' + top + '" width="' + width +
+                '" version="1.1" xmlns="http://www.w3.org/2000/svg">Thirumalaigdfgdfg dfgdfg dfgdf' +
+                svgArr.join('') + '</svg>';
+        };
+
+        /**
+         * Create a global exportCharts method that takes an array of charts as an
+         * argument, and exporting options as the second argument
+         */
+        Highcharts.exportCharts = function (charts, options) {
+
+            // Merge the options
+            options = Highcharts.merge(Highcharts.getOptions().exporting, options);
+
+            // Post to export server
+            Highcharts.post(options.url, {
+                filename: options.filename || 'MIS Dashboard Report',
+                type: options.type,
+                width: options.width,
+                svg: Highcharts.getSVG(charts, options.accountDetail)
+            });
+        };
+
+        // Highcharts.exportCharts([this.chart1, this.chart2], {
+        //     type: 'application/pdf',
+        //     accountDetail: this.projectDetails
+        // });
+
+        Highcharts.exportCharts([this.chart4, this.chart2, this.chart1, this.chart3, this.chart5, this.chart6, this.chart7], {
+            type: fileType,
+            accountDetail: this.projectDetails
         });
     }
 
@@ -77,7 +222,7 @@ export class BcpChartComponent implements OnInit {
     }
 
     NavigateToUserTracker() {
-        if (this.projectId.trim() == "AllAccount") {
+        if (this.projectId == "0") {
             this.router.navigate(['/home']);
         } else {
             this.router.navigate(['/bcm-user-tracker', this.projectId]);
@@ -133,6 +278,7 @@ export class BcpChartComponent implements OnInit {
     }
 
     getBcpDetailsUpdateDataAll() {
+        this.isLoading = true;
         this.bcpChartService.getBCPDataTrackerHistoryAll().subscribe(data => {
             this.bcpAssociateTrackerService.getBcpAssociateTrackerAll().subscribe(model => {
                 let chartData = [];
@@ -160,8 +306,10 @@ export class BcpChartComponent implements OnInit {
                     }
                 });
                 this.getChartData(chartData);
+                this.isLoading = false;
             });
         });
+        this.isLoading = true;
         this.bcpChartService.getAccountAttendanceDataAll().subscribe((response: BCPDailyUpdate[]) => {
             console.log(response);
             const uniqueUpdateDate = this.fillMissingDates([...new Set(response.map(item => item.UpdateDate))]);
@@ -174,6 +322,7 @@ export class BcpChartComponent implements OnInit {
                 this.attendanceData.push({ date: updateDate, count: +roundPer });
             });
             this.attendanceGraph(this.attendanceData);
+            this.isLoading = false;
         });
     }
 
@@ -504,7 +653,7 @@ export class BcpChartComponent implements OnInit {
 
         var Highcharts = require('highcharts');
         require('highcharts/modules/exporting')(Highcharts);
-        Highcharts.chart('container1', {
+        this.chart1 = Highcharts.chart('container1', {
             chart: {
                 plotBackgroundColor: null,
                 plotBorderWidth: null,
@@ -643,7 +792,7 @@ export class BcpChartComponent implements OnInit {
     piiAccessGraph(PIIDataAccessYes, PIIDataAccessNo, PIIDataAccessOthers) {
         var Highcharts = require('highcharts');
         require('highcharts/modules/exporting')(Highcharts);
-        Highcharts.chart('container6', {
+        this.chart6 = Highcharts.chart('container6', {
             chart: {
                 plotBackgroundColor: null,
                 plotBorderWidth: null,
@@ -741,7 +890,7 @@ export class BcpChartComponent implements OnInit {
     workFromHomeGraph(wfhRedinessYes, wfhRedinessNo, wfhRedinessOthers) {
         var Highcharts = require('highcharts');
         require('highcharts/modules/exporting')(Highcharts);
-        Highcharts.chart('container2', {
+        this.chart2 = Highcharts.chart('container2', {
             chart: {
                 plotBackgroundColor: null,
                 plotBorderWidth: null,
@@ -838,7 +987,7 @@ export class BcpChartComponent implements OnInit {
     BYODComplianceGraph(BYODComplianceYes, BYODComplianceNo, BYODComplianceOthers) {
         var Highcharts = require('highcharts');
         require('highcharts/modules/exporting')(Highcharts);
-        Highcharts.chart('container7', {
+        this.chart7 = Highcharts.chart('container7', {
             chart: {
                 plotBackgroundColor: null,
                 plotBorderWidth: null,
@@ -970,7 +1119,7 @@ export class BcpChartComponent implements OnInit {
         // });
         var Highcharts = require('highcharts');
         require('highcharts/modules/exporting')(Highcharts);
-        Highcharts.chart('container3', {
+        this.chart3 = Highcharts.chart('container3', {
             chart: {
                 plotBackgroundColor: null,
                 type: 'bar'
@@ -1116,7 +1265,7 @@ export class BcpChartComponent implements OnInit {
         });
         var Highcharts = require('highcharts');
         require('highcharts/modules/exporting')(Highcharts);
-        Highcharts.chart('container4', {
+        this.chart4 = Highcharts.chart('container4', {
             chart: {
                 plotBackgroundColor: null,
                 type: 'column',
@@ -1323,7 +1472,7 @@ export class BcpChartComponent implements OnInit {
 
         var Highcharts = require('highcharts');
         require('highcharts/modules/exporting')(Highcharts);
-        Highcharts.chart('container5', {
+        this.chart5 = Highcharts.chart('container5', {
             chart: {
                 plotBackgroundColor: null,
                 type: 'bar'
