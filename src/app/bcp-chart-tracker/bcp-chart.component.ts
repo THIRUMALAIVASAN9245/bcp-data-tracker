@@ -514,7 +514,7 @@ export class BcpChartComponent implements OnInit {
             title: {
                 text: 'Device Usage',
                 style: {
-                    color: '#000099',
+                    color: '#535D7C',
                     fontWeight: 'bold'
                 }
             },
@@ -576,25 +576,25 @@ export class BcpChartComponent implements OnInit {
                     name: 'Personal Device',
                     y: personalDevice[0].Count,
                     custom: personalDevice[0].Percentage,
-                    color: '#065279'
+                    color: '#1C6DA4'
                 },
                 {
                     name: 'Cognizant Device',
                     y: cognizantDevice[0].Count,
                     custom: cognizantDevice[0].Percentage,
-                    color: '#16A951'
+                    color: '#2B9B2B'
                 },
                 {
                     name: 'Customer Device',
                     y: customerDevice[0].Count,
                     custom: customerDevice[0].Percentage,
-                    color: '#FF7500'
+                    color: '#F57B0E'
                 },
                 {
                     name: 'Cognizant BYOD',
                     y: cognizantBYODs[0].Count,
                     custom: cognizantBYODs[0].Percentage,
-                    color: '#CC0000'
+                    color: '#D02627'
                 }]
             }],
             exporting: {
@@ -653,7 +653,7 @@ export class BcpChartComponent implements OnInit {
             title: {
                 text: 'PII Exposure',
                 style: {
-                    color: '#000099',
+                    color: '#535D7C',
                     fontWeight: 'bold'
                 }
             },
@@ -684,11 +684,11 @@ export class BcpChartComponent implements OnInit {
                 data: [{
                     name: 'Yes',
                     y: PIIDataAccessYes,
-                    color: '#065279'
+                    color: '#D9614F'
                 }, {
                     name: 'No',
                     y: PIIDataAccessNo,
-                    color: '#CC0000'
+                    color: '#B34C62'
                 }, {
                     name: 'Others',
                     y: PIIDataAccessOthers,
@@ -751,7 +751,7 @@ export class BcpChartComponent implements OnInit {
             title: {
                 text: 'Work From Home',
                 style: {
-                    color: '#000099',
+                    color: '#535D7C',
                     fontWeight: 'bold'
                 }
             },
@@ -782,11 +782,11 @@ export class BcpChartComponent implements OnInit {
                 data: [{
                     name: 'Yes',
                     y: wfhRedinessYes,
-                    color: '#065279'
+                    color: '#533563'
                 }, {
                     name: 'No',
                     y: wfhRedinessNo,
-                    color: '#CC0000'
+                    color: '#E1347A'
                 }, {
                     name: 'Others',
                     y: wfhRedinessOthers,
@@ -848,7 +848,7 @@ export class BcpChartComponent implements OnInit {
             title: {
                 text: 'BYODCompliance',
                 style: {
-                    color: '#000099',
+                    color: '#535D7C',
                     fontWeight: 'bold'
                 }
             },
@@ -879,11 +879,11 @@ export class BcpChartComponent implements OnInit {
                 data: [{
                     name: 'Yes',
                     y: BYODComplianceYes,
-                    color: '#065279'
+                    color: '#671A88'
                 }, {
                     name: 'No',
                     y: BYODComplianceNo,
-                    color: '#CC0000'
+                    color: '#859209'
                 }, {
                     name: 'Others',
                     y: BYODComplianceOthers,
@@ -978,7 +978,7 @@ export class BcpChartComponent implements OnInit {
             title: {
                 text: ' Absenteeism Reason',
                 style: {
-                    color: '#000099',
+                    color: '#535D7C',
                     fontWeight: 'bold'
                 }
             },
@@ -996,7 +996,7 @@ export class BcpChartComponent implements OnInit {
                 },
                 stackLabels: {
                     style: {
-                        color: '#0000EE',
+                        color: '#F13CD7',
                         fontWeight: 'bold'
                     },
                     enabled: true,
@@ -1058,9 +1058,9 @@ export class BcpChartComponent implements OnInit {
                 // }
             },
             series: [{
-                name: 'Absenteeism Reason',
+                name: '.',
                 data: [noDevice, unplannedLeave, plannedLeave, workingAtOffice, connectivity, covid19],
-                color: '#065279'
+                color: '#E73D80'
             }],
             exporting: {
                 buttons: {
@@ -1132,7 +1132,7 @@ export class BcpChartComponent implements OnInit {
             title: {
                 text: 'Attendance %',
                 style: {
-                    color: '#000099',
+                    color: '#535D7C',
                     fontWeight: 'bold'
                 }
             },
@@ -1145,7 +1145,7 @@ export class BcpChartComponent implements OnInit {
                 },
                 stackLabels: {
                     style: {
-                        color: '#0000EE',
+                        color: '#7089A9',
                         fontWeight: 'bold'
                     },
                     enabled: true,
@@ -1172,9 +1172,9 @@ export class BcpChartComponent implements OnInit {
                 // }
             },
             series: [{
-                name: 'Attendance',
+                name: '.',
                 data: yaxis,
-                color: '#065279'
+                color: '#7089A9'
             }],
             exporting: {
                 buttons: {
@@ -1331,7 +1331,7 @@ export class BcpChartComponent implements OnInit {
             title: {
                 text: 'Mode of Connectivity',
                 style: {
-                    color: '#000099',
+                    color: '#535D7C',
                     fontWeight: 'bold'
                 }
             },
@@ -1351,7 +1351,7 @@ export class BcpChartComponent implements OnInit {
                 },
                 stackLabels: {
                     style: {
-                        color: '#0000EE',
+                        color: '#646ED6',
                         fontWeight: 'bold'
                     },
                     enabled: true,
@@ -1479,10 +1479,10 @@ export class BcpChartComponent implements OnInit {
                 // },                
             },
             series: [{
-                name: 'Mode of Connectivity',
+                name: '.',
                 data: [protocolA, protocolB1, protocolB2, protocolB3, protocolB4, protocolC1, protocolC2, protocolC3,
                     protocolC4, protocolD],
-                color: '#065279'
+                color: '#646ED6'
             }],
             exporting: {
                 buttons: {
