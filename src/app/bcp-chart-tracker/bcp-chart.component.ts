@@ -1058,7 +1058,7 @@ export class BcpChartComponent implements OnInit {
                 // }
             },
             series: [{
-                name: '.',
+                showInLegend: false,
                 data: [noDevice, unplannedLeave, plannedLeave, workingAtOffice, connectivity, covid19],
                 color: '#E73D80'
             }],
@@ -1172,7 +1172,7 @@ export class BcpChartComponent implements OnInit {
                 // }
             },
             series: [{
-                name: '.',
+                showInLegend: false,
                 data: yaxis,
                 color: '#7089A9'
             }],
@@ -1479,7 +1479,7 @@ export class BcpChartComponent implements OnInit {
                 // },                
             },
             series: [{
-                name: '.',
+                showInLegend: false,
                 data: [protocolA, protocolB1, protocolB2, protocolB3, protocolB4, protocolC1, protocolC2, protocolC3,
                     protocolC4, protocolD],
                 color: '#646ED6'
