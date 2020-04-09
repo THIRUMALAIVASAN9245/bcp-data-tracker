@@ -71,8 +71,9 @@ export class BcpChartComponent implements OnInit {
     NavigateToUserTracker() {
         if (this.projectId.trim() == "AllAccount") {
             this.router.navigate(['/home']);
+        } else {
+            this.router.navigate(['/bcm-user-tracker', this.projectId]);
         }
-        this.router.navigate(['/bcm-user-tracker', this.projectId]);
     }
 
     stringToDate(dateString: string) {
@@ -83,11 +84,11 @@ export class BcpChartComponent implements OnInit {
     fillMissingDates(actualDatesinDb: any[]) {
 
         debugger;
-        
+
         let datesAfterInsertingHolidays = [];
 
         actualDatesinDb.forEach((element) => {
-            var dateAttend = this.stringToDate(element);            
+            var dateAttend = this.stringToDate(element);
             if (dateAttend.getDay() !== 6 && dateAttend.getDay() !== 0) {
                 console.log(dateAttend.getDay());
                 datesAfterInsertingHolidays.push(moment(dateAttend).format("DD-MM-YYYY"));
