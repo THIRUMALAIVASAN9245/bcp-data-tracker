@@ -8,6 +8,7 @@ import * as XLSX from 'xlsx';
 import * as moment from 'moment';
 import { BCPDetailsGraph } from '../models/BCPDetailsGraph';
 import { UserDetail } from '../models/user-details';
+import { BcpAccountMasterService } from '../providers/bcp-account-master.service';
 
 const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
 const EXCEL_EXTENSION = '.xlsx';
@@ -21,6 +22,7 @@ declare var require: any;
 export class BcpChartComponent implements OnInit {
     constructor(private bcpChartService: BcpChartService,
         private bcpAssociateTrackerService: BcpAssociateTrackerService,
+        private bcpAccountMasterService: BcpAccountMasterService,
         private router: Router,
         private route: ActivatedRoute) { }
 
@@ -35,6 +37,7 @@ export class BcpChartComponent implements OnInit {
     wfhData: any = [];
     piiAccessData: any = [];
     byodData: any = [];
+    projectDetails: any;
 
     ngOnInit() {
         this.route.params.subscribe(params => { this.projectId = params["id"] });
@@ -50,6 +53,11 @@ export class BcpChartComponent implements OnInit {
                 this.getBcpDetailsUpdateData(this.projectId);
             });
         }
+
+        this.bcpAccountMasterService.getAccountMasterById(this.projectId).subscribe(data => {
+            debugger;
+            this.projectDetails = data[0];
+        });
     }
 
     downloadProtocolReport() {

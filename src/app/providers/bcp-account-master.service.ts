@@ -27,4 +27,18 @@ export class BcpAccountMasterService {
         }));
     }
 
+    getAccountMasterById(accountId) {
+        var apiURL = this.baseUrl + "_api/lists/getbytitle('BCPAccountMaster')/items?$filter=Title eq " + accountId;
+        let getData = this.httpClientService.get(apiURL);
+        return getData.pipe(map((resspone: any) => {
+            const bCPAccountMaster = resspone.value.map(item => {
+                return new BCPAccountMaster(
+                    item.Title,
+                    item.AccountName,
+                    item.ImagePath
+                );
+            });
+            return bCPAccountMaster;
+        }));
+    }
 }
