@@ -63,7 +63,7 @@ export class HomeComponent {
     this.bcpDownloadService.exportAllAccountDetails(this.bCPMasterDataCount, this.bCPDailyUpdateCount).subscribe(model => {
       this.mergeData(model);
       const sheetOneResponse = this.associateDetails.length > 0 ? this.associateDetails : [new AssociateDetails("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")];
-      const sheetTwoResponse = this.bCPDailyUpdate.length > 0 ? this.bCPDailyUpdate : [new BCPDailyUpdate("", "", "", "")];
+      const sheetTwoResponse = this.bCPDailyUpdate.length > 0 ? this.bCPDailyUpdate : [new BCPDailyUpdate("", "", "", "", "")];
 
       var dataOne = [];
       var dataTwo = [];

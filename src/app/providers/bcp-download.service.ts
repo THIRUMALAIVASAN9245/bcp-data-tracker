@@ -184,6 +184,7 @@ export class BcpDownloadService {
             const getDaily = dailyUpdate.map(item => {
                 return new BCPDailyUpdate(
                     item.Title,
+                    "",
                     item.AssociateID,
                     item.Attendance,
                     item.UpdateDate
@@ -232,6 +233,7 @@ export class BcpDownloadService {
                     associateDetails.forEach(element => {
                         var attendanceForAll = new BCPDailyUpdate(
                             element.AccountID,
+                            element.AccountName,
                             element.AssociateID,
                             "Yes",
                             initialDateString,
@@ -247,6 +249,7 @@ export class BcpDownloadService {
                         filteredData.forEach(element => {
                             var attendanceForAll = new BCPDailyUpdate(
                                 element.AccountID,
+                                element.AccountName,
                                 element.AssociateID,
                                 "Yes",
                                 initialDateString
@@ -254,7 +257,20 @@ export class BcpDownloadService {
                             dailyAttendanceDetails.push(attendanceForAll);
                         });
 
-                        dailyAttendanceDetails.push(...noAttendance[initialDateString]);
+                        
+                        var filteredNoData = associateDetails.filter(atten => absenties.includes(atten.AssociateID));
+                        filteredNoData.forEach(element => {
+                            var attendanceForAll = new BCPDailyUpdate(
+                                element.AccountID,
+                                element.AccountName,
+                                element.AssociateID,
+                                "No",
+                                initialDateString
+                            );
+                            dailyAttendanceDetails.push(attendanceForAll);
+                        });
+
+                        // dailyAttendanceDetails.push(...noAttendance[initialDateString]);
                     }
                 }
             }
@@ -303,8 +319,9 @@ export class BcpDownloadService {
 
     attendanceDetailsSheet(getAddten: any) {
         return new BCPDailyUpdate(
-            getAddten.Title,
-            getAddten.AssociateId,
+            getAddten.AccountId,
+            "",
+            getAddten.AssociateID,
             getAddten.Attendance,
             getAddten.UpdateDate
         );
