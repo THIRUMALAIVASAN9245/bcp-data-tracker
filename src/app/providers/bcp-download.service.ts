@@ -242,36 +242,34 @@ export class BcpDownloadService {
                     });
                 }
                 else {
-                    if (associateDetails.length != noAttendance[initialDateString].length) {
-                        var absenties = noAttendance[initialDateString].map(a => a.AssociateID);
+                    var absenties = noAttendance[initialDateString].map(a => a.AssociateID);
 
-                        var filteredData = associateDetails.filter(atten => !absenties.includes(atten.AssociateID));
-                        filteredData.forEach(element => {
-                            var attendanceForAll = new BCPDailyUpdate(
-                                element.AccountID,
-                                element.AccountName,
-                                element.AssociateID,
-                                "Yes",
-                                initialDateString
-                            );
-                            dailyAttendanceDetails.push(attendanceForAll);
-                        });
+                    var filteredData = associateDetails.filter(atten => !absenties.includes(atten.AssociateID));
+                    filteredData.forEach(element => {
+                        var attendanceForAll = new BCPDailyUpdate(
+                            element.AccountID,
+                            element.AccountName,
+                            element.AssociateID,
+                            "Yes",
+                            initialDateString
+                        );
+                        dailyAttendanceDetails.push(attendanceForAll);
+                    });
 
-                        
-                        var filteredNoData = associateDetails.filter(atten => absenties.includes(atten.AssociateID));
-                        filteredNoData.forEach(element => {
-                            var attendanceForAll = new BCPDailyUpdate(
-                                element.AccountID,
-                                element.AccountName,
-                                element.AssociateID,
-                                "No",
-                                initialDateString
-                            );
-                            dailyAttendanceDetails.push(attendanceForAll);
-                        });
 
-                        // dailyAttendanceDetails.push(...noAttendance[initialDateString]);
-                    }
+                    var filteredNoData = associateDetails.filter(atten => absenties.includes(atten.AssociateID));
+                    filteredNoData.forEach(element => {
+                        var attendanceForAll = new BCPDailyUpdate(
+                            element.AccountID,
+                            element.AccountName,
+                            element.AssociateID,
+                            "No",
+                            initialDateString
+                        );
+                        dailyAttendanceDetails.push(attendanceForAll);
+                    });
+
+                    // dailyAttendanceDetails.push(...noAttendance[initialDateString]);
                 }
             }
 
