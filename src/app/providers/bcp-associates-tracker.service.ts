@@ -57,7 +57,7 @@ export class BcpAssociateTrackerService {
     }
 
     getBcpAssociateTrackerAll() {
-        var apiURL = this.baseUrl + "_api/lists/getbytitle('BCPMasterTrackerFull')/items?$filter=isDeleted eq 0&$top=10000";
+        var apiURL = this.baseUrl + "_api/lists/getbytitle('BCPMasterTrackerFull')/items?$filter=isDeleted eq 0&$top=20000";
         let getCourses = this.httpClientService.get(apiURL);
 
         return forkJoin([getCourses]).pipe(map((resspone: any) => {

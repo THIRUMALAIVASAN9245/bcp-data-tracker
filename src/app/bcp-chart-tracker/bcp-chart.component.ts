@@ -85,7 +85,6 @@ export class BcpChartComponent implements OnInit {
                 debugger;
                 if (index == 0 && accountDetail) {
                     debugger;
-                    console.log(index);
                     var svg = chart.getSVG(),
                         // Get width/height of SVG for export
                         svgWidth = +svg.match(
@@ -142,9 +141,9 @@ export class BcpChartComponent implements OnInit {
 
                     svgArr.push(svg);
 
-                    let Title = "MIS Dashboard Report";
+                    let Title = "MIS Dashboard – UK&I Insurance Accounts";
                     Title = Title.replace(/\n/g, '</tspan><tspan x="0" dy="1.2em">');
-                    const txtId = '<text x= "' + 0 + '" y = "' + (10 + 20) + '" styles = "' + Title + '"><tspan x="35%" dy="1.2em">' + Title + '</tspan></text>';
+                    const txtId = '<text x= "' + 0 + '" y = "' + (10 + 20) + '" styles = "' + Title + '"><tspan x="20%" dy="1.2em">' + Title + '</tspan></text>';
                     svgArr.push(txtId);
 
                 } else {
@@ -163,7 +162,7 @@ export class BcpChartComponent implements OnInit {
                     );
                     svg = svg.replace('</svg>', '</g>');
 
-                    top += svgHeight;
+                    top += svgHeight + 10;
                     width = Math.max(width, svgWidth);
 
                     svgArr.push(svg);
@@ -182,6 +181,17 @@ export class BcpChartComponent implements OnInit {
          */
         Highcharts.exportCharts = function (charts, options) {
 
+
+            // charts.forEach(chart => {
+            //     chart.update({
+            //         chart: {
+            //             borderColor: '#656565',
+            //             borderWidth: 1,
+            //             paddingBottom: 20
+            //         }
+            //     });
+            // });
+
             // Merge the options
             options = Highcharts.merge(Highcharts.getOptions().exporting, options);
 
@@ -192,6 +202,7 @@ export class BcpChartComponent implements OnInit {
                 width: options.width,
                 svg: Highcharts.getSVG(charts, options.accountDetail)
             });
+
         };
 
         // Highcharts.exportCharts([this.chart1, this.chart2], {
@@ -243,7 +254,6 @@ export class BcpChartComponent implements OnInit {
         actualDatesinDb.forEach((element) => {
             var dateAttend = this.stringToDate(element);
             if (dateAttend.getDay() !== 6 && dateAttend.getDay() !== 0) {
-                console.log(dateAttend.getDay());
                 datesAfterInsertingHolidays.push(moment(dateAttend).format("DD-MM-YYYY"));
             }
         });
@@ -311,9 +321,8 @@ export class BcpChartComponent implements OnInit {
         });
         this.isLoading = true;
         this.bcpChartService.getAccountAttendanceDataAll().subscribe((response: BCPDailyUpdate[]) => {
-            console.log(response);
-            const uniqueUpdateDate = this.fillMissingDates([...new Set(response.map(item => item.UpdateDate))]);
-            console.log(uniqueUpdateDate);
+            var uniqueUpdateDate = this.fillMissingDates([...new Set(response.map(item => item.UpdateDate))]);
+            uniqueUpdateDate = uniqueUpdateDate.slice(Math.max(uniqueUpdateDate.length - 5, 0));
             uniqueUpdateDate.forEach((updateDate: any) => {
                 const uniqueYes = response.filter(item => item.UpdateDate == updateDate && item.Attendance == "No");
                 const uniqueYesCount = this.accountCount - uniqueYes.length;
@@ -358,7 +367,9 @@ export class BcpChartComponent implements OnInit {
             });
         });
         this.bcpChartService.getAccountAttendanceData(projectId).subscribe((response: BCPDailyUpdate[]) => {
-            const uniqueUpdateDate = this.fillMissingDates([...new Set(response.map(item => item.UpdateDate))]);
+            var uniqueUpdateDate = this.fillMissingDates([...new Set(response.map(item => item.UpdateDate))]);
+            debugger;
+            uniqueUpdateDate = uniqueUpdateDate.slice(Math.max(uniqueUpdateDate.length - 5, 0));
             uniqueUpdateDate.forEach((updateDate: any) => {
                 const uniqueYes = response.filter(item => item.UpdateDate == updateDate && item.Attendance == "No");
                 const uniqueYesCount = this.accountCount - uniqueYes.length;
@@ -397,11 +408,11 @@ export class BcpChartComponent implements OnInit {
         uniqueOthers.forEach(x => {
             this.wfhData.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, CurrentEnabledforWFH: "Others" });
         });
-        const uniqueNoCount = chartData.length - uniqueYes.length;
-        const uniqueOthersCount = chartData.length - (uniqueNoCount + uniqueYes.length);
+        // const uniqueNoCount = chartData.length - uniqueYes.length;
+        // const uniqueOthersCount = chartData.length - (uniqueNoCount + uniqueYes.length);
         wfhRedinessYes = parseFloat(((uniqueYes.length / chartData.length) * 100).toFixed(2));
-        wfhRedinessNo = parseFloat(((uniqueNoCount / chartData.length) * 100).toFixed(2));
-        wfhRedinessOthers = parseFloat(((uniqueOthersCount / chartData.length) * 100).toFixed(2));
+        wfhRedinessNo = parseFloat(((uniqueNo.length / chartData.length) * 100).toFixed(2));
+        wfhRedinessOthers = parseFloat(((uniqueOthers.length / chartData.length) * 100).toFixed(2));
         this.workFromHomeGraph(wfhRedinessYes, wfhRedinessNo, wfhRedinessOthers);
     }
 
@@ -427,13 +438,13 @@ export class BcpChartComponent implements OnInit {
         });
         var uniqueOthers = chartData.filter(item => item.PIIDataAccess == null || (item.PIIDataAccess != null && item.PIIDataAccess.trim() == ""));
         uniqueOthers.forEach(x => {
-            this.wfhData.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, PIIDataAccess: "Others" });
+            this.piiAccessData.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, PIIDataAccess: "Others" });
         });
-        const uniqueNoCount = chartData.length - uniqueYes.length;
-        const uniqueOthersCount = chartData.length - (uniqueNoCount + uniqueYes.length);
+        // const uniqueNoCount = chartData.length - uniqueYes.length;
+        // const uniqueOthersCount = chartData.length - (uniqueNoCount + uniqueYes.length);
         PIIDataAccessYes = parseFloat(((uniqueYes.length / chartData.length) * 100).toFixed(2));
-        PIIDataAccessNo = parseFloat(((uniqueNoCount / chartData.length) * 100).toFixed(2));
-        PIIDataAccessOthers = parseFloat(((uniqueOthersCount / chartData.length) * 100).toFixed(2));
+        PIIDataAccessNo = parseFloat(((uniqueNo.length / chartData.length) * 100).toFixed(2));
+        PIIDataAccessOthers = parseFloat(((uniqueOthers.length / chartData.length) * 100).toFixed(2));
         this.piiAccessGraph(PIIDataAccessYes, PIIDataAccessNo, PIIDataAccessOthers);
     }
 
@@ -460,13 +471,13 @@ export class BcpChartComponent implements OnInit {
         });
         var uniqueOthers = chartData.filter(item => item.BYODCompliance == null || (item.BYODCompliance == null && item.BYODCompliance.trim() == ""));
         uniqueOthers.forEach(x => {
-            this.wfhData.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, BYODCompliance: "Others" });
+            this.byodData.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, BYODCompliance: "Others" });
         });
-        const uniqueNoCount = chartData.length - uniqueYes.length;
-        const uniqueOthersCount = chartData.length - (uniqueNoCount + uniqueYes.length);
+        // const uniqueNoCount = chartData.length - uniqueYes.length;
+        // const uniqueOthersCount = chartData.length - (uniqueNoCount + uniqueYes.length);
         BYODComplianceYes = parseFloat(((uniqueYes.length / chartData.length) * 100).toFixed(2));
-        BYODComplianceNo = parseFloat(((uniqueNoCount / chartData.length) * 100).toFixed(2));
-        BYODComplianceOthers = parseFloat(((uniqueOthersCount / chartData.length) * 100).toFixed(2));
+        BYODComplianceNo = parseFloat(((uniqueNo.length / chartData.length) * 100).toFixed(2));
+        BYODComplianceOthers = parseFloat(((uniqueOthers.length / chartData.length) * 100).toFixed(2));
         this.BYODComplianceGraph(BYODComplianceYes, BYODComplianceNo, BYODComplianceOthers);
     }
 
@@ -482,8 +493,9 @@ export class BcpChartComponent implements OnInit {
         var cognizantDevice = [];
         var customerDevice = [];
         var cognizantBYODs = [];
+        var others = [];
         this.deviceType = [];
-
+        debugger;
         var personaltemp = chartData.filter(item => item.WFHDeviceType == "Personal Device");
         personaltemp.forEach(x => {
             this.deviceType.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, DeviceType: x.WFHDeviceType });
@@ -504,6 +516,10 @@ export class BcpChartComponent implements OnInit {
             this.deviceType.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, DeviceType: x.WFHDeviceType });
         });
         // cognizantBYODs.push({ count: cognizantBOYDstemp.length, data: personaltemp });
+        var othersType = chartData.filter(item => item.WFHDeviceType == null || (item.WFHDeviceType == null && item.WFHDeviceType.trim() == ""));
+        othersType.forEach(x => {
+            this.deviceType.push({ AccountID: x.AccountId, AccountName: x.AccountName, AssociateId: x.AssociateID, AssociateName: x.AssociateName, Date: x.UpdateDate, DeviceType: x.WFHDeviceType });
+        });
 
         var personalDevicePer = parseFloat(((personaltemp.length / chartData.length) * 100).toFixed(2));
         personalDevice.push({ Count: personaltemp.length, Percentage: personalDevicePer });
@@ -513,8 +529,10 @@ export class BcpChartComponent implements OnInit {
         customerDevice.push({ Count: customerDevicetemp.length, Percentage: customerDevicePer });
         var cognizantBYODsPer = parseFloat(((cognizantBOYDstemp.length / chartData.length) * 100).toFixed(2));
         cognizantBYODs.push({ Count: cognizantBOYDstemp.length, Percentage: cognizantBYODsPer });
+        var othersTypePer = parseFloat(((othersType.length / chartData.length) * 100).toFixed(2));
+        others.push({ Count: othersType.length, Percentage: othersTypePer });
 
-        this.deviceTypeGraph(personalDevice, cognizantDevice, customerDevice, cognizantBYODs);
+        this.deviceTypeGraph(personalDevice, cognizantDevice, customerDevice, cognizantBYODs, others);
     }
 
     private getPersonalReason(chartData: BCPDetailsGraph[]) {
@@ -523,7 +541,14 @@ export class BcpChartComponent implements OnInit {
         // var plannedLeave = [];
         // var workingAtOffice = [];
         // var connectivity = [];
-        // var covid19 = [];
+        debugger;
+        var dateLatest = [];
+
+        dateLatest = this.fillMissingDates([...new Set(chartData.map(item => item.UpdateDate))]);
+
+        dateLatest = dateLatest.slice().sort((a: string, b: string) => {
+            return Date.parse(b) - Date.parse(a);
+        });
 
         var nodevice = chartData.filter(item => item.PersonalReason == "No device");
         nodevice.forEach(x => {
@@ -556,7 +581,7 @@ export class BcpChartComponent implements OnInit {
         });
         // covid19.push({ count: covid.length, data: covid });
 
-        this.personalReasonGraph(nodevice.length, unplanned.length, planned.length, workAtOffice.length, connect.length, covid.length);
+        this.personalReasonGraph(dateLatest[0], nodevice.length, unplanned.length, planned.length, workAtOffice.length, connect.length, covid.length);
     }
 
     private getProtocolType(chartData: BCPDetailsGraph[]) {
@@ -630,7 +655,7 @@ export class BcpChartComponent implements OnInit {
         }
     }
 
-    deviceTypeGraph(personalDevice, cognizantDevice, customerDevice, cognizantBYODs) {
+    deviceTypeGraph(personalDevice, cognizantDevice, customerDevice, cognizantBYODs, others) {
         // var Yaxis_personal = [];
         // var Yaxis_cts = [];
         // var Yaxis_cus = [];
@@ -655,8 +680,9 @@ export class BcpChartComponent implements OnInit {
         require('highcharts/modules/exporting')(Highcharts);
         this.chart1 = Highcharts.chart('container1', {
             chart: {
+                borderColor: '#656565',
+                borderWidth: 1,
                 plotBackgroundColor: null,
-                plotBorderWidth: null,
                 plotShadow: false,
                 type: 'pie'
             },
@@ -668,7 +694,7 @@ export class BcpChartComponent implements OnInit {
                 }
             },
             tooltip: {
-                pointFormat: '{series.name}: <b>{point.y} [{point.custom}%]</b>'
+                pointFormat: '{series.name}: <b>{point.y} [{point.custom:.2f}%]</b>'
             },
             accessibility: {
                 point: {
@@ -714,7 +740,7 @@ export class BcpChartComponent implements OnInit {
                     cursor: 'pointer',
                     dataLabels: {
                         enabled: true,
-                        format: '<b>{point.name}</b>: {point.y} [{point.custom}%]'
+                        format: '<b>{point.name}</b>: {point.y} [{point.custom:.2f}%]'
                     }
                 }
             },
@@ -744,6 +770,12 @@ export class BcpChartComponent implements OnInit {
                     y: cognizantBYODs[0].Count,
                     custom: cognizantBYODs[0].Percentage,
                     color: '#D02627'
+                },
+                {
+                    name: 'Others',
+                    y: others[0].Count,
+                    custom: others[0].Percentage,
+                    color: '#666666'
                 }]
             }],
             exporting: {
@@ -795,7 +827,8 @@ export class BcpChartComponent implements OnInit {
         this.chart6 = Highcharts.chart('container6', {
             chart: {
                 plotBackgroundColor: null,
-                plotBorderWidth: null,
+                borderColor: '#656565',
+                borderWidth: 1,
                 plotShadow: false,
                 type: 'pie'
             },
@@ -807,7 +840,7 @@ export class BcpChartComponent implements OnInit {
                 }
             },
             tooltip: {
-                pointFormat: '{series.name}: <b>{point.y}%</b>'
+                pointFormat: '{series.name}: <b>{point.y:.2f}%</b>'
             },
             accessibility: {
                 point: {
@@ -823,7 +856,7 @@ export class BcpChartComponent implements OnInit {
                     cursor: 'pointer',
                     dataLabels: {
                         enabled: true,
-                        format: '<b>{point.name}</b>: {point.y} %'
+                        format: '<b>{point.name}</b>: {point.y:.2f}%'
                     }
                 },
             },
@@ -893,7 +926,8 @@ export class BcpChartComponent implements OnInit {
         this.chart2 = Highcharts.chart('container2', {
             chart: {
                 plotBackgroundColor: null,
-                plotBorderWidth: null,
+                borderColor: '#656565',
+                borderWidth: 1,
                 plotShadow: false,
                 type: 'pie'
             },
@@ -905,7 +939,7 @@ export class BcpChartComponent implements OnInit {
                 }
             },
             tooltip: {
-                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                pointFormat: '{series.name}: <b>{point.percentage:.2f}%</b>'
             },
             accessibility: {
                 point: {
@@ -921,7 +955,7 @@ export class BcpChartComponent implements OnInit {
                     cursor: 'pointer',
                     dataLabels: {
                         enabled: true,
-                        format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+                        format: '<b>{point.name}</b>: {point.percentage:.2f}%'
                     }
                 }
             },
@@ -990,7 +1024,8 @@ export class BcpChartComponent implements OnInit {
         this.chart7 = Highcharts.chart('container7', {
             chart: {
                 plotBackgroundColor: null,
-                plotBorderWidth: null,
+                borderColor: '#656565',
+                borderWidth: 1,
                 plotShadow: false,
                 type: 'pie'
             },
@@ -1002,7 +1037,7 @@ export class BcpChartComponent implements OnInit {
                 }
             },
             tooltip: {
-                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                pointFormat: '{series.name}: <b>{point.percentage:.2f}%</b>'
             },
             accessibility: {
                 point: {
@@ -1018,7 +1053,7 @@ export class BcpChartComponent implements OnInit {
                     cursor: 'pointer',
                     dataLabels: {
                         enabled: true,
-                        format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+                        format: '<b>{point.name}</b>: {point.percentage:.2f}%'
                     }
                 }
             },
@@ -1088,7 +1123,7 @@ export class BcpChartComponent implements OnInit {
         }
     }
 
-    personalReasonGraph(noDevice, unplannedLeave, plannedLeave, workingAtOffice, connectivity, covid19) {
+    personalReasonGraph(dateLatest, noDevice, unplannedLeave, plannedLeave, workingAtOffice, connectivity, covid19) {
         // var noDeviceYaxis = [];
         // var unplannedLeaveYaxis = [];
         // var plannedLeaveYaxis = [];
@@ -1117,15 +1152,19 @@ export class BcpChartComponent implements OnInit {
         // covid19.forEach(element => {
         //     covidYaxis.push(element.count);
         // });
+        dateLatest = moment(dateLatest, "DD-MM-YYYY").format("DD MMM YYYY");
+
         var Highcharts = require('highcharts');
         require('highcharts/modules/exporting')(Highcharts);
         this.chart3 = Highcharts.chart('container3', {
             chart: {
                 plotBackgroundColor: null,
+                borderColor: '#656565',
+                borderWidth: 1,
                 type: 'bar'
             },
             title: {
-                text: ' Absenteeism Reason',
+                text: ' Absenteeism Reason [' + dateLatest + ']',
                 style: {
                     color: '#535D7C',
                     fontWeight: 'bold'
@@ -1268,15 +1307,9 @@ export class BcpChartComponent implements OnInit {
         this.chart4 = Highcharts.chart('container4', {
             chart: {
                 plotBackgroundColor: null,
-                type: 'column',
-                events: {
-                    click: (e) => {
-                        debugger;
-                        if (e.toElement.alt == "download") {
-                            console.log(e.toElement.alt);
-                        }
-                    }
-                }
+                borderColor: '#656565',
+                borderWidth: 1,
+                type: 'column'
             },
             title: {
                 text: 'Attendance %',
@@ -1298,6 +1331,9 @@ export class BcpChartComponent implements OnInit {
                         fontWeight: 'bold'
                     },
                     enabled: true,
+                    formatter: function () {
+                        return this.total + "%";
+                    }
                 }
             },
             credits: {
@@ -1370,21 +1406,20 @@ export class BcpChartComponent implements OnInit {
         });
     }
 
-    attendanceDownloadByDate(specificDate?: any) {
+    attendanceDownloadByDate() {
         let PresentMembers = [];
         let AbsentMembers = [];
         this.TotalAttendanceDownloadData = [];
-        if (this.projectId.trim() == "AllAccount") {
+        debugger;
+        if (this.projectId == null || (this.projectId != null && this.projectId.trim() == "0")) {
             this.bcpAssociateTrackerService.getBcpAssociateTrackerAll().subscribe(model => {
                 let totalAccountMembers = model.userDetail;
                 this.bcpChartService.getAccountAttendanceDataAll().subscribe((response: BCPDailyUpdate[]) => {
                     let uniqueUpdateDate;
-                    if (specificDate) {
-                        uniqueUpdateDate = [specificDate];
-                    } else {
-                        uniqueUpdateDate = this.fillMissingDates([...new Set(response.map(item => item.UpdateDate))]);
-                    }
+                    debugger;
+                    uniqueUpdateDate = this.fillMissingDates([...new Set(response.map(item => item.UpdateDate))]);
                     uniqueUpdateDate.forEach(selectedDate => {
+                        debugger;
                         let membersAbsentOnSelectedDate = response.filter(item => item.UpdateDate == selectedDate && item.Attendance == "No");
                         PresentMembers = totalAccountMembers.filter(x => !membersAbsentOnSelectedDate.map(y => y.AssociateID).includes(x.AssociateId))
                             .map(a => ({
@@ -1422,13 +1457,11 @@ export class BcpChartComponent implements OnInit {
             this.bcpAssociateTrackerService.getBcpAssociateTracker(this.projectId).subscribe(model => {
                 let totalAccountMembers = model.userDetail;
                 this.bcpChartService.getAccountAttendanceData(this.projectId).subscribe((response: BCPDailyUpdate[]) => {
+                    debugger;
                     let uniqueUpdateDate;
-                    if (specificDate) {
-                        uniqueUpdateDate = [specificDate];
-                    } else {
-                        uniqueUpdateDate = this.fillMissingDates([...new Set(response.map(item => item.UpdateDate))]);
-                    }
+                    uniqueUpdateDate = this.fillMissingDates([...new Set(response.map(item => item.UpdateDate))]);
                     uniqueUpdateDate.forEach(selectedDate => {
+                        debugger;
                         let membersAbsentOnSelectedDate = response.filter(item => item.UpdateDate == selectedDate && item.Attendance == "No");
                         PresentMembers = totalAccountMembers.filter(x => !membersAbsentOnSelectedDate.map(y => y.AssociateID).includes(x.AssociateId))
                             .map(a => ({
@@ -1457,7 +1490,6 @@ export class BcpChartComponent implements OnInit {
 
                     if (this.TotalAttendanceDownloadData.length > 0) {
                         this.exportExcel(this.TotalAttendanceDownloadData, this.projectId + "Attendance", "AttendanceDetails");
-
                     }
                 });
             });
@@ -1475,6 +1507,8 @@ export class BcpChartComponent implements OnInit {
         this.chart5 = Highcharts.chart('container5', {
             chart: {
                 plotBackgroundColor: null,
+                borderColor: '#656565',
+                borderWidth: 1,
                 type: 'bar'
             },
             title: {
