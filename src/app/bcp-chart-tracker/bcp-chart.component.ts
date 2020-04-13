@@ -763,7 +763,7 @@ export class BcpChartComponent implements OnInit {
         require('highcharts/modules/exporting')(Highcharts);
         this.chart1 = Highcharts.chart('container1', {
             chart: {
-                borderColor: '#656565',
+                // borderColor: '#656565',
                 borderWidth: 1,
                 plotBackgroundColor: null,
                 plotShadow: false,
@@ -910,7 +910,7 @@ export class BcpChartComponent implements OnInit {
         this.chart6 = Highcharts.chart('container6', {
             chart: {
                 plotBackgroundColor: null,
-                borderColor: '#656565',
+                // borderColor: '#656565',
                 borderWidth: 1,
                 plotShadow: false,
                 type: 'pie'
@@ -1009,7 +1009,7 @@ export class BcpChartComponent implements OnInit {
         this.chart2 = Highcharts.chart('container2', {
             chart: {
                 plotBackgroundColor: null,
-                borderColor: '#656565',
+                // borderColor: '#656565',
                 borderWidth: 1,
                 plotShadow: false,
                 type: 'pie'
@@ -1107,7 +1107,7 @@ export class BcpChartComponent implements OnInit {
         this.chart7 = Highcharts.chart('container7', {
             chart: {
                 plotBackgroundColor: null,
-                borderColor: '#656565',
+                // borderColor: '#656565',
                 borderWidth: 1,
                 plotShadow: false,
                 type: 'pie'
@@ -1242,7 +1242,7 @@ export class BcpChartComponent implements OnInit {
         this.chart3 = Highcharts.chart('container3', {
             chart: {
                 plotBackgroundColor: null,
-                borderColor: '#656565',
+                // borderColor: '#656565',
                 borderWidth: 1,
                 type: 'bar'
             },
@@ -1390,7 +1390,7 @@ export class BcpChartComponent implements OnInit {
         this.chart4 = Highcharts.chart('container4', {
             chart: {
                 plotBackgroundColor: null,
-                borderColor: '#656565',
+                // borderColor: '#656565',
                 borderWidth: 1,
                 type: 'column'
             },
@@ -1590,7 +1590,7 @@ export class BcpChartComponent implements OnInit {
         this.chart5 = Highcharts.chart('container5', {
             chart: {
                 plotBackgroundColor: null,
-                borderColor: '#656565',
+                // borderColor: '#656565',
                 borderWidth: 1,
                 type: 'bar'
             },
