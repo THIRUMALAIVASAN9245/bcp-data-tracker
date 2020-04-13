@@ -96,7 +96,7 @@ export class BcpChartComponent implements OnInit {
 
                     svg = svg.replace(
                         '<svg',
-                        '<g transform="translate(0,' + 150 + ')" '
+                        '<g transform="translate(20,' + 150 + ')" '
                     );
                     svg = svg.replace('</svg>', '</g>');
 
@@ -132,7 +132,7 @@ export class BcpChartComponent implements OnInit {
 
                     svg = svg.replace(
                         '<svg',
-                        '<g transform="translate(0,' + 75 + ')" '
+                        '<g transform="translate(20,' + 75 + ')" '
                     );
                     svg = svg.replace('</svg>', '</g>');
 
@@ -158,7 +158,7 @@ export class BcpChartComponent implements OnInit {
 
                     svg = svg.replace(
                         '<svg',
-                        '<g transform="translate(0,' + top + ')" '
+                        '<g transform="translate(20,' + top + ')" '
                     );
                     svg = svg.replace('</svg>', '</g>');
 
@@ -170,8 +170,8 @@ export class BcpChartComponent implements OnInit {
 
             });
 
-            return '<svg height="' + top + '" width="' + width +
-                '" version="1.1" xmlns="http://www.w3.org/2000/svg">Thirumalaigdfgdfg dfgdfg dfgdf' +
+            return '<svg height="' + top + '" width="' + (width + 40) +
+                '" version="1.1" xmlns="http://www.w3.org/2000/svg">' +
                 svgArr.join('') + '</svg>';
         };
 
