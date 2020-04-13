@@ -42,9 +42,12 @@ export class BcpChartComponent implements OnInit {
     projectDetails: any;
     isLoading = false;
     baseApplicationUrl = environment.apiBaseImageUrl;
-    inActiveAccounts: BCPAccountMaster[] = [];
+    activeAccounts: BCPAccountMaster[] = [];
     activeUserDetails: IUserDetail[] = [];
-    holidayList: Date[] = [new Date("02/01/2020"), new Date(), new Date(), new Date(), new Date()];
+    holidayListAllLocation: Date[] = [new Date("04/10/2020")];
+    holidayLocationWise: any = [];
+    chennaiCount: any;
+    bangaloreCount: any;
 
     chart1;
     chart2;
@@ -58,19 +61,27 @@ export class BcpChartComponent implements OnInit {
         this.route.params.subscribe(params => { this.projectId = params["id"] });
         if (this.projectId == null || this.projectId.trim() === "0" || this.projectId.trim() === "") {
             this.bcpAssociateTrackerService.getBcpAssociateTrackerAll().subscribe(data => {
-                this.bcpAccountMasterService.getInActiveAccountMaster().subscribe(model => {
+                this.bcpAccountMasterService.getAccountMaster().subscribe(model => {
+                    debugger;
                     this.activeUserDetails = data.userDetail;
-                    this.inActiveAccounts = model;
-                    this.inActiveAccounts.forEach(element => {
-                        this.activeUserDetails = this.activeUserDetails.filter(x => x.AccountID !== element.AccountId);
+                    this.activeAccounts = model;
+                    var tempAccount: IUserDetail[] = [];
+                    this.activeAccounts.forEach(element => {
+                        var temp = this.activeUserDetails.filter(x => x.AccountID === element.AccountId);
+                        tempAccount.push.apply(tempAccount, temp);
                     });
+                    this.activeUserDetails = tempAccount;
+                    this.chennaiCount = this.activeUserDetails.filter(x => x.Location == "Chennai").length;
+                    this.bangaloreCount = this.activeUserDetails.filter(x => x.Location == "Bangalore").length;
                     this.accountCount = this.activeUserDetails.length;
                     this.getBcpDetailsUpdateDataAll();
                 });
             });
         } else {
-            this.bcpChartService.getBCPDataTrackerHistoryCount(this.projectId).subscribe(data => {
-                this.accountCount = data;
+            this.bcpAssociateTrackerService.getBcpAssociateTracker(this.projectId).subscribe(data => {
+                this.accountCount = data.userDetail.length;
+                this.chennaiCount = data.userDetail.filter(x => x.Location == "Chennai").length;
+                this.bangaloreCount = data.userDetail.filter(x => x.Location == "Bangalore").length;
                 this.getBcpDetailsUpdateData(this.projectId);
             });
         }
@@ -81,6 +92,11 @@ export class BcpChartComponent implements OnInit {
                 this.projectDetails = data[0];
             });
         }
+        this.setHolidayForLocation();
+    }
+
+    setHolidayForLocation() {
+        this.holidayLocationWise.push({ date: "14-04-2020", location: "Chennai" });
     }
 
     DownloadChartReport(fileType) {
@@ -239,7 +255,9 @@ export class BcpChartComponent implements OnInit {
         for (let i = 1; i <= days; i++) {
             var date = new Date();
             date.setDate(date.getDate() - i);
-            daysSeries.push(date.getDate() + '-' + (date.getMonth() + 1) + '-' + date.getFullYear());
+            if (this.holidayListAllLocation.find(x => x.getDate() !== date.getDate())) {
+                daysSeries.push(date.getDate() + '-' + (date.getMonth() + 1) + '-' + date.getFullYear());
+            }
         }
         return daysSeries;
     }
@@ -352,16 +370,38 @@ export class BcpChartComponent implements OnInit {
             var uniqueUpdateDate = this.fillMissingDates(this.getLastNdays(10));
             uniqueUpdateDate = uniqueUpdateDate.reverse();
             uniqueUpdateDate = uniqueUpdateDate.slice(Math.max(uniqueUpdateDate.length - 5, 0));
+            debugger;
+            const responseAccount: BCPDailyUpdate[] = response;
+            var tempAccount: BCPDailyUpdate[] = [];
+            this.activeAccounts.forEach(element => {
+                var temp = responseAccount.filter(x => x.AccountId == element.AccountId);
+                tempAccount.push.apply(tempAccount, temp);
+                console.log(tempAccount.length);
+            });
             uniqueUpdateDate.forEach((updateDate: any) => {
-                const uniqueYes = response.filter(item => item.UpdateDate == updateDate && item.Attendance == "No");
-                if (uniqueYes != null && uniqueYes.length > 0) {
-                    const uniqueYesCount = this.accountCount - uniqueYes.length;
-                    const percent = (uniqueYesCount / this.accountCount) * 100;
+                var holiday = this.holidayLocationWise.find(x => x.date == updateDate)
+                if (holiday != null) {
+                    var totalCount = 0;
+                    if (this.chennaiCount > 0) {
+                        totalCount += this.chennaiCount;
+                    }
+                    if (this.bangaloreCount > 0) {
+                        totalCount += this.bangaloreCount;
+                    }
+                    const percent = (totalCount / this.accountCount) * 100;
                     const roundPer = parseFloat(percent.toString()).toFixed(2);
                     this.attendanceData.push({ date: updateDate, count: +roundPer });
                 } else {
-                    const roundPer = parseFloat("100").toFixed(2);
-                    this.attendanceData.push({ date: updateDate, count: +roundPer });
+                    const uniqueYes = tempAccount.filter(item => item.UpdateDate == updateDate && item.Attendance == "No");
+                    if (uniqueYes != null && uniqueYes.length > 0) {
+                        const uniqueYesCount = this.accountCount - uniqueYes.length;
+                        const percent = (uniqueYesCount / this.accountCount) * 100;
+                        const roundPer = parseFloat(percent.toString()).toFixed(2);
+                        this.attendanceData.push({ date: updateDate, count: +roundPer });
+                    } else {
+                        const roundPer = parseFloat("100").toFixed(2);
+                        this.attendanceData.push({ date: updateDate, count: +roundPer });
+                    }
                 }
             });
             this.attendanceGraph(this.attendanceData);

@@ -4,6 +4,7 @@ import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment.prod';
 import { BCPDetailsUpdate, BCPDetailsUpdateResponse } from '../models/BCPDetailsUpdate'
+import { BCPDailyUpdate } from '../models/BCPDailyUpdate';
 
 @Injectable()
 export class BcpChartService {
@@ -73,9 +74,18 @@ export class BcpChartService {
 
         var apiURL = this.baseUrl + "_api/lists/getbytitle('BCPDailyUpdate')/items?$filter=Title eq " + accountId + "&$top=5000";
 
-        return this.httpClientService.get(apiURL).pipe(map((response: any) => {
-            console.log(response);
-            return response.value;
+        let getData = this.httpClientService.get(apiURL);
+        return getData.pipe(map((response: any) => {
+            const bCPDailyUpdate = response.value.map(item => {
+                return new BCPDailyUpdate(
+                    item.Title,
+                    item.AccountName,
+                    item.AssociateID,
+                    item.Attendance,
+                    item.UpdateDate
+                );
+            });
+            return bCPDailyUpdate;
         }));
     }
 
@@ -83,9 +93,18 @@ export class BcpChartService {
 
         var apiURL = this.baseUrl + "_api/lists/getbytitle('BCPDailyUpdate')/items";
 
-        return this.httpClientService.get(apiURL).pipe(map((response: any) => {
-            console.log(response);
-            return response.value;
+        let getData = this.httpClientService.get(apiURL);
+        return getData.pipe(map((response: any) => {
+            const bCPDailyUpdate = response.value.map(item => {
+                return new BCPDailyUpdate(
+                    item.Title,
+                    item.AccountName,
+                    item.AssociateID,
+                    item.Attendance,
+                    item.UpdateDate
+                );
+            });
+            return bCPDailyUpdate;
         }));
     }
 
