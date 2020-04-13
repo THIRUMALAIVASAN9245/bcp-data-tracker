@@ -57,10 +57,14 @@ export class BcpChartComponent implements OnInit {
     ngOnInit() {
         this.route.params.subscribe(params => { this.projectId = params["id"] });
         if (this.projectId == null || this.projectId.trim() === "0" || this.projectId.trim() === "") {
-            this.bcpChartService.getBCPDataTrackerHistoryCountAll().subscribe(data => {
+            this.bcpAssociateTrackerService.getBcpAssociateTrackerAll().subscribe(data => {
                 this.bcpAccountMasterService.getInActiveAccountMaster().subscribe(model => {
+                    this.activeUserDetails = data.userDetail;
                     this.inActiveAccounts = model;
-                    this.accountCount = data;
+                    this.inActiveAccounts.forEach(element => {
+                        this.activeUserDetails = this.activeUserDetails.filter(x => x.AccountID !== element.AccountId);
+                    });
+                    this.accountCount = this.activeUserDetails.length;
                     this.getBcpDetailsUpdateDataAll();
                 });
             });
@@ -308,39 +312,39 @@ export class BcpChartComponent implements OnInit {
     getBcpDetailsUpdateDataAll() {
         this.isLoading = true;
         this.bcpChartService.getBCPDataTrackerHistoryAll().subscribe(data => {
-            this.bcpAssociateTrackerService.getBcpAssociateTrackerAll().subscribe(model => {
-                debugger;
-                let chartData = [];
-                this.activeUserDetails = model.userDetail;
-                this.inActiveAccounts.forEach(element => {
-                    this.activeUserDetails = this.activeUserDetails.filter(x => x.AccountID !== element.AccountId);
-                });
-                data.bcpDetailsUpdate.forEach(bcpDetails => {
-                    var bcpUserDetail: UserDetail = this.activeUserDetails.find(x => x.AssociateId === bcpDetails.AssociateID);
-                    if (bcpUserDetail != null) {
-                        var bcpModelDetails = new BCPDetailsGraph(
-                            bcpUserDetail.AccountID,
-                            bcpUserDetail.AccountName,
-                            bcpUserDetail.AssociateId,
-                            bcpUserDetail.AssociateName,
-                            bcpDetails.CurrentEnabledforWFH,
-                            bcpDetails.WFHDeviceType,
-                            bcpDetails.Comments,
-                            bcpDetails.IstheResourceProductivefromHome,
-                            bcpDetails.PersonalReason,
-                            bcpDetails.AssetId,
-                            bcpDetails.PIIDataAccess,
-                            bcpDetails.Protocol,
-                            bcpDetails.BYODCompliance,
-                            bcpDetails.Dongles,
-                            bcpDetails.UpdateDate,
-                            bcpDetails.UniqueId);
-                        chartData.push(bcpModelDetails);
-                    }
-                });
-                this.getChartData(chartData);
-                this.isLoading = false;
+            // this.bcpAssociateTrackerService.getBcpAssociateTrackerAll().subscribe(model => {
+            debugger;
+            let chartData = [];
+            // this.activeUserDetails = model.userDetail;
+            // this.inActiveAccounts.forEach(element => {
+            //     this.activeUserDetails = this.activeUserDetails.filter(x => x.AccountID !== element.AccountId);
+            // });
+            data.bcpDetailsUpdate.forEach(bcpDetails => {
+                var bcpUserDetail: UserDetail = this.activeUserDetails.find(x => x.AssociateId === bcpDetails.AssociateID);
+                if (bcpUserDetail != null) {
+                    var bcpModelDetails = new BCPDetailsGraph(
+                        bcpUserDetail.AccountID,
+                        bcpUserDetail.AccountName,
+                        bcpUserDetail.AssociateId,
+                        bcpUserDetail.AssociateName,
+                        bcpDetails.CurrentEnabledforWFH,
+                        bcpDetails.WFHDeviceType,
+                        bcpDetails.Comments,
+                        bcpDetails.IstheResourceProductivefromHome,
+                        bcpDetails.PersonalReason,
+                        bcpDetails.AssetId,
+                        bcpDetails.PIIDataAccess,
+                        bcpDetails.Protocol,
+                        bcpDetails.BYODCompliance,
+                        bcpDetails.Dongles,
+                        bcpDetails.UpdateDate,
+                        bcpDetails.UniqueId);
+                    chartData.push(bcpModelDetails);
+                }
             });
+            this.getChartData(chartData);
+            this.isLoading = false;
+            // });
         });
         this.isLoading = true;
         this.bcpChartService.getAccountAttendanceDataAll().subscribe((response: BCPDailyUpdate[]) => {
