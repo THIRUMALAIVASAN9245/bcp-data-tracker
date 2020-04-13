@@ -60,7 +60,7 @@ export class BcpChartComponent implements OnInit {
             this.bcpChartService.getBCPDataTrackerHistoryCountAll().subscribe(data => {
                 this.bcpAccountMasterService.getInActiveAccountMaster().subscribe(model => {
                     this.inActiveAccounts = model;
-                    this.accountCount = data - model.length;
+                    this.accountCount = data;
                     this.getBcpDetailsUpdateDataAll();
                 });
             });
