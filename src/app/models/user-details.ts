@@ -20,7 +20,8 @@ export interface IUserDetail {
     Temporary: string,
     AlwaysNew2: string,
     DuplicateFlag: string,
-    Allocation: string
+    Allocation: string,
+    AllocationEndDate: string
 }
 
 export class UserDetail implements IUserDetail {
@@ -47,7 +48,8 @@ export class UserDetail implements IUserDetail {
         public Temporary: string,
         public AlwaysNew2: string,
         public DuplicateFlag: string,
-        public Allocation: string) {
+        public Allocation: string,
+        public AllocationEndDate: string) {
     }
 }
 

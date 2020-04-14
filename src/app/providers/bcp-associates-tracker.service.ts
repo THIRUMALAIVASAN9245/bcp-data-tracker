@@ -48,7 +48,8 @@ export class BcpAssociateTrackerService {
                     item.Temporary,
                     item.AlwaysNew2,
                     item.DuplicateFlag,
-                    item.isDeleted == 0 ? "Active" : "Inactive"
+                    item.isDeleted == 0 ? "Active" : "Inactive",
+                    item.IsDeletedDate
                 );
             });
 
@@ -84,7 +85,8 @@ export class BcpAssociateTrackerService {
                     item.Temporary,
                     item.AlwaysNew2,
                     item.DuplicateFlag,
-                    item.isDeleted == 0 ? "Active" : "Inactive"
+                    item.isDeleted == 0 ? "Active" : "Inactive",
+                    item.IsDeletedDate
                 );
             });
 

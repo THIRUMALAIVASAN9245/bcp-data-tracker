@@ -62,7 +62,7 @@ export class HomeComponent {
     this.bCPDailyUpdate = [];
     this.bcpDownloadService.exportAllAccountDetails(this.bCPMasterDataCount, this.bCPDailyUpdateCount).subscribe(model => {
       this.mergeData(model);
-      const sheetOneResponse = this.associateDetails.length > 0 ? this.associateDetails : [new AssociateDetails("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")];
+      const sheetOneResponse = this.associateDetails.length > 0 ? this.associateDetails : [new AssociateDetails("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")];
       const sheetTwoResponse = this.bCPDailyUpdate.length > 0 ? this.bCPDailyUpdate : [new BCPDailyUpdate("", "", "", "", "")];
 
       var dataOne = [];
@@ -83,8 +83,13 @@ export class HomeComponent {
       }
       var updatedDailyTracker = this.bcpDownloadService.generateDailyUpdate(dataOne, dataTwo);
 
+      dataOne.forEach(element => {
+        delete element["AllocationEndDate"];
+      });
+
       var data = [dataOne];
       data.push(updatedDailyTracker);
+
       this.bcpFileExportService.exportAsExcelFile(data, "AllAccount");
     });
   }

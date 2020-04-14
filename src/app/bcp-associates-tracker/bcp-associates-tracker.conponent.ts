@@ -218,9 +218,13 @@ export class BcpAssociateTrackerComponent {
     this.bcpDownloadService.exportAccountDetails(filterData).subscribe(model => {
       this.mergeData(model);
       var data = [];
-      const sheetOneResponse = this.associateDetails.length > 0 ? this.associateDetails : [new AssociateDetails("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")];
+      const sheetOneResponse = this.associateDetails.length > 0 ? this.associateDetails : [new AssociateDetails("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")];
       const sheetTwoResponse = this.bCPDailyUpdate.length > 0 ? this.bCPDailyUpdate : [new BCPDailyUpdate("", "", "", "", "")];
       var updatedDailyTracker = this.bcpDownloadService.generateDailyUpdate(sheetOneResponse, sheetTwoResponse);
+      
+      sheetOneResponse.forEach(element => {
+        delete element["AllocationEndDate"];
+      });
 
       data.push(sheetOneResponse);
       data.push(updatedDailyTracker);

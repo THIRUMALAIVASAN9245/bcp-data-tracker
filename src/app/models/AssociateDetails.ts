@@ -30,7 +30,8 @@ export interface IAssociateDetails {
     Protocol: string,
     BYODCompliance: string,
     Dongles: string,
-    Allocation: string
+    Allocation: string,
+    AllocationEndDate: string
 }
 
 export class AssociateDetails implements IAssociateDetails {
@@ -66,6 +67,7 @@ export class AssociateDetails implements IAssociateDetails {
         public Protocol: string,
         public BYODCompliance: string,
         public Dongles: string,
-        public Allocation: string) {
+        public Allocation: string,
+        public AllocationEndDate: string) {
     }
 }

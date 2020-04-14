@@ -147,7 +147,8 @@ export class BcpDownloadService {
                     item.Temporary,
                     item.AlwaysNew2,
                     item.DuplicateFlag,
-                    item.isDeleted == 0 ? "Active" : "Inactive"
+                    item.isDeleted == 0 ? "Active" : "Inactive",
+                    item.IsDeletedDate
                 );
             });
 
@@ -219,8 +220,11 @@ export class BcpDownloadService {
 
     generateDailyUpdate(associateDetails: any, fullAttendance: any) {
         var dailyAttendanceDetails = [];
+        var inActiveAttendanceDetails = [];
         var initialDate = new Date(2020, 2, 30);
+        var initialDate1 = new Date(2020, 2, 30);
         var curerntDate = new Date();
+        var inactiveAssociates = associateDetails.filter(x => x.Allocation == "Inactive");
         associateDetails = associateDetails.filter(x => x.Allocation == "Active");
         while (curerntDate.getTime() > initialDate.getTime()) {
             if (initialDate.getDay() == 6 || initialDate.getDay() == 0) {
@@ -240,6 +244,20 @@ export class BcpDownloadService {
                         );
                         dailyAttendanceDetails.push(attendanceForAll);
                     });
+
+                    inactiveAssociates.forEach(element => {
+                        var allocationEndDate = this.stringToDate(element.AllocationEndDate);
+                        if (allocationEndDate.getTime() >= initialDate.getTime()) {
+                            var attendanceForAll = new BCPDailyUpdate(
+                                element.AccountID,
+                                element.AccountName,
+                                element.AssociateID,
+                                "Yes",
+                                initialDateString,
+                            );
+                            dailyAttendanceDetails.push(attendanceForAll);
+                        }
+                    });
                 }
                 else {
                     var absenties = noAttendance[initialDateString].map(a => a.AssociateID);
@@ -256,6 +274,20 @@ export class BcpDownloadService {
                         dailyAttendanceDetails.push(attendanceForAll);
                     });
 
+                    var filteredInactiveData = inactiveAssociates.filter(atten => !absenties.includes(atten.AssociateID));
+                    filteredInactiveData.forEach(element => {
+                        var allocationEndDate = this.stringToDate(element.AllocationEndDate);
+                        if (allocationEndDate.getTime() >= initialDate.getTime()) {
+                            var attendanceForAll = new BCPDailyUpdate(
+                                element.AccountID,
+                                element.AccountName,
+                                element.AssociateID,
+                                "Yes",
+                                initialDateString
+                            );
+                            dailyAttendanceDetails.push(attendanceForAll);
+                        }
+                    });
 
                     var filteredNoData = associateDetails.filter(atten => absenties.includes(atten.AssociateID));
                     filteredNoData.forEach(element => {
@@ -269,13 +301,24 @@ export class BcpDownloadService {
                         dailyAttendanceDetails.push(attendanceForAll);
                     });
 
-                    // dailyAttendanceDetails.push(...noAttendance[initialDateString]);
+                    var inactiveAbsenties = inactiveAssociates.filter(atten => absenties.includes(atten.AssociateID));
+                    inactiveAbsenties.forEach(element => {
+                        var allocationEndDate = this.stringToDate(element.AllocationEndDate);
+                        if (allocationEndDate.getTime() >= initialDate.getTime()) {
+                            var attendanceForAll = new BCPDailyUpdate(
+                                element.AccountID,
+                                element.AccountName,
+                                element.AssociateID,
+                                "No",
+                                initialDateString
+                            );
+                            dailyAttendanceDetails.push(attendanceForAll);
+                        }
+                    });
                 }
             }
-
             initialDate.setDate(initialDate.getDate() + 1);
         }
-
         return dailyAttendanceDetails;
     }
 
@@ -312,7 +355,8 @@ export class BcpDownloadService {
             latestRecord ? latestRecord.Protocol : "",
             latestRecord ? latestRecord.BYODCompliance : "",
             latestRecord ? latestRecord.Dongle : "",
-            details.Allocation);
+            details.Allocation,
+            details.AllocationEndDate);
     }
 
     attendanceDetailsSheet(getAddten: any) {
