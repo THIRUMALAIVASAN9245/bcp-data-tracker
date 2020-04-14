@@ -447,15 +447,29 @@ export class BcpChartComponent implements OnInit {
             uniqueUpdateDate = uniqueUpdateDate.reverse();
             uniqueUpdateDate = uniqueUpdateDate.slice(Math.max(uniqueUpdateDate.length - 5, 0));
             uniqueUpdateDate.forEach((updateDate: any) => {
-                const uniqueYes = response.filter(item => item.UpdateDate == updateDate && item.Attendance == "No");
-                if (uniqueYes != null && uniqueYes.length > 0) {
-                    const uniqueYesCount = this.accountCount - uniqueYes.length;
-                    const percent = (uniqueYesCount / this.accountCount) * 100;
+                var holiday = this.holidayLocationWise.find(x => x.date == updateDate)
+                if (holiday != null) {
+                    var totalCount = 0;
+                    if (this.chennaiCount > 0) {
+                        totalCount += this.chennaiCount;
+                    }
+                    if (this.bangaloreCount > 0) {
+                        totalCount += this.bangaloreCount;
+                    }
+                    const percent = (totalCount / this.accountCount) * 100;
                     const roundPer = parseFloat(percent.toString()).toFixed(2);
                     this.attendanceData.push({ date: updateDate, count: +roundPer });
                 } else {
-                    const roundPer = parseFloat("100").toFixed(2);
-                    this.attendanceData.push({ date: updateDate, count: +roundPer });
+                    const uniqueYes = response.filter(item => item.UpdateDate == updateDate && item.Attendance == "No");
+                    if (uniqueYes != null && uniqueYes.length > 0) {
+                        const uniqueYesCount = this.accountCount - uniqueYes.length;
+                        const percent = (uniqueYesCount / this.accountCount) * 100;
+                        const roundPer = parseFloat(percent.toString()).toFixed(2);
+                        this.attendanceData.push({ date: updateDate, count: +roundPer });
+                    } else {
+                        const roundPer = parseFloat("100").toFixed(2);
+                        this.attendanceData.push({ date: updateDate, count: +roundPer });
+                    }
                 }
             });
             this.attendanceGraph(this.attendanceData);
