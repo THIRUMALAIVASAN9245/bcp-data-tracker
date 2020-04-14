@@ -91,7 +91,7 @@ export class BcpChartService {
 
     getAccountAttendanceDataAll() {
 
-        var apiURL = this.baseUrl + "_api/lists/getbytitle('BCPDailyUpdate')/items";
+        var apiURL = this.baseUrl + "_api/lists/getbytitle('BCPDailyUpdate')/items?$top=20000";
 
         let getData = this.httpClientService.get(apiURL);
         return getData.pipe(map((response: any) => {
