@@ -21,7 +21,7 @@ export class BcpAssociateTrackerService {
     }
 
     getBcpAssociateTracker(projectId: any) {
-        var apiURL = this.baseUrl + "_api/lists/getbytitle('BCPMasterTrackerFull')/items?$filter=AccountID eq " + projectId + " and isDeleted eq 0&$top=5000";
+        var apiURL = this.baseUrl + "_api/lists/getbytitle('BCPMasterTrackerFull')/items?$filter=AccountID eq " + projectId + " and IsDeleted eq 0&$top=5000";
         let getCourses = this.httpClientService.get(apiURL);
 
         return forkJoin([getCourses]).pipe(map((resspone: any) => {
@@ -48,7 +48,7 @@ export class BcpAssociateTrackerService {
                     item.Temporary,
                     item.AlwaysNew2,
                     item.DuplicateFlag,
-                    item.isDeleted == 0 ? "Active" : "Inactive",
+                    item.IsDeleted == 0 ? "Active" : "Inactive",
                     item.IsDeletedDate
                 );
             });
@@ -58,7 +58,7 @@ export class BcpAssociateTrackerService {
     }
 
     getBcpAssociateTrackerAll() {
-        var apiURL = this.baseUrl + "_api/lists/getbytitle('BCPMasterTrackerFull')/items?$filter=isDeleted eq 0&$top=20000";
+        var apiURL = this.baseUrl + "_api/lists/getbytitle('BCPMasterTrackerFull')/items?$filter=IsDeleted eq 0&$top=20000";
         let getCourses = this.httpClientService.get(apiURL);
 
         return forkJoin([getCourses]).pipe(map((resspone: any) => {
@@ -85,7 +85,7 @@ export class BcpAssociateTrackerService {
                     item.Temporary,
                     item.AlwaysNew2,
                     item.DuplicateFlag,
-                    item.isDeleted == 0 ? "Active" : "Inactive",
+                    item.IsDeleted == 0 ? "Active" : "Inactive",
                     item.IsDeletedDate
                 );
             });

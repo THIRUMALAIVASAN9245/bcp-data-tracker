@@ -13,7 +13,7 @@ export class BcpAccountMasterService {
     }
 
     getAccountMaster() {
-        var apiURL = this.baseUrl + "_api/lists/getbytitle('BCPAccountMaster')/items?$filter=isDeleted eq 0&$orderby=AccountName%20asc&$top=5000";
+        var apiURL = this.baseUrl + "_api/lists/getbytitle('BCPAccountMaster')/items?$filter=IsDeleted eq 0&$orderby=AccountName%20asc&$top=5000";
         let getData = this.httpClientService.get(apiURL);
         return getData.pipe(map((resspone: any) => {
             const bCPAccountMaster = resspone.value.map(item => {

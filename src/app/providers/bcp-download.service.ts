@@ -123,7 +123,7 @@ export class BcpDownloadService {
             for (var index = 0; index < masterDataCount; index++) {
                 allMasterDetail.push(...response[index].value);
             }
-            // // allMasterDetail = allMasterDetail.filter(x => x.isDeleted == 0);
+            // // allMasterDetail = allMasterDetail.filter(x => x.IsDeleted == 0);
             const getMasterDetails = allMasterDetail.map(item => {
                 return new UserDetail(
                     item.Title,
@@ -147,7 +147,7 @@ export class BcpDownloadService {
                     item.Temporary,
                     item.AlwaysNew2,
                     item.DuplicateFlag,
-                    item.isDeleted == 0 ? "Active" : "Inactive",
+                    item.IsDeleted == 0 ? "Active" : "Inactive",
                     item.IsDeletedDate
                 );
             });
@@ -247,7 +247,8 @@ export class BcpDownloadService {
 
                     inactiveAssociates.forEach(element => {
                         var allocationEndDate = this.stringToDate(element.AllocationEndDate);
-                        if (allocationEndDate.getTime() >= initialDate.getTime()) {
+
+                        if (allocationEndDate !== null && allocationEndDate.getTime() >= initialDate.getTime()) {
                             var attendanceForAll = new BCPDailyUpdate(
                                 element.AccountID,
                                 element.AccountName,
@@ -277,7 +278,7 @@ export class BcpDownloadService {
                     var filteredInactiveData = inactiveAssociates.filter(atten => !absenties.includes(atten.AssociateID));
                     filteredInactiveData.forEach(element => {
                         var allocationEndDate = this.stringToDate(element.AllocationEndDate);
-                        if (allocationEndDate.getTime() >= initialDate.getTime()) {
+                        if (allocationEndDate !== null && allocationEndDate.getTime() >= initialDate.getTime()) {
                             var attendanceForAll = new BCPDailyUpdate(
                                 element.AccountID,
                                 element.AccountName,
@@ -304,7 +305,7 @@ export class BcpDownloadService {
                     var inactiveAbsenties = inactiveAssociates.filter(atten => absenties.includes(atten.AssociateID));
                     inactiveAbsenties.forEach(element => {
                         var allocationEndDate = this.stringToDate(element.AllocationEndDate);
-                        if (allocationEndDate.getTime() >= initialDate.getTime()) {
+                        if (allocationEndDate !== null && allocationEndDate.getTime() >= initialDate.getTime()) {
                             var attendanceForAll = new BCPDailyUpdate(
                                 element.AccountID,
                                 element.AccountName,
@@ -390,15 +391,20 @@ export class BcpDownloadService {
 
         for (var index = 0; index < dataCollection.length; index++) {
             var date = this.stringToDate(dataCollection[index].UpdateDate);
-            if (latestDate.getTime() == date.getTime()) {
-                return dataCollection[index];
+            if (date !== null) {
+                if (latestDate.getTime() == date.getTime()) {
+                    return dataCollection[index];
+                }
             }
         }
     }
 
     stringToDate(dateString: string) {
-        var dateParts = dateString.split('-');
-        return new Date(parseInt(dateParts[2]), parseInt(dateParts[1]) - 1, parseInt(dateParts[0]));
+        if (dateString !== null) {
+            var dateParts = dateString.split('-');
+            return new Date(parseInt(dateParts[2]), parseInt(dateParts[1]) - 1, parseInt(dateParts[0]));
+        }
+        return null;
     }
 
     groupBy(xs: any, key: any) {
